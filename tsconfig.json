@@ -24,7 +24,7 @@
     "**/*.tsx",
     "src/pages/_app.tsx",
     "src/pages/index.tsx",
-    "src/public/auth/[...nextauth].js"
+    "src/pages/api/auth/[...nextauth].js"
 ],
   "exclude": [
     "node_modules"
