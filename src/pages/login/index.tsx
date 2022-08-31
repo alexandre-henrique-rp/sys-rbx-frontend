@@ -1,4 +1,4 @@
-import React from 'react';
+import { getCsrfToken } from 'next-auth/client';
 import {
   Button,
   Checkbox,
@@ -12,7 +12,7 @@ import {
   Image,
 } from '@chakra-ui/react';
 
-export default function login() {
+export default function login({ csrfToken }) {
   return (
     <Stack
       minH={'100vh'}
