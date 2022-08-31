@@ -14,32 +14,47 @@ import {
 
 export default function login() {
   return (
-    <Stack minH={'100vh'} bg='gray.50' direction={{ base: 'column', md: 'row' }}>
+    <Stack
+      minH={'100vh'}
+      bg="gray.50"
+      direction={{ base: 'column', md: 'row' }}
+    >
       <Flex p={8} flex={1} align={'center'} justify={'center'}>
         <Stack
           spacing={4}
           w={'full'}
           maxW={'xl'}
           padding={10}
-          boxShadow='dark-lg'
-          rounded='md'
-          bg='white'
+          boxShadow="dark-lg"
+          rounded="md"
+          bg="white"
         >
           <Heading fontSize={'2xl'}>Login</Heading>
           <FormControl id="email">
             <FormLabel>Email</FormLabel>
-            <Input border={'1px'} borderColor='gray.300' boxShadow='2xl' type="email" />
+            <Input
+              border={'1px'}
+              borderColor="gray.300"
+              boxShadow="2xl"
+              type="email"
+            />
           </FormControl>
           <FormControl id="password">
             <FormLabel>Password</FormLabel>
-            <Input border={'1px'} borderColor='gray.300' boxShadow='2xl' type="password" />
+            <Input
+              border={'1px'}
+              borderColor="gray.300"
+              boxShadow="2xl"
+              type="password"
+            />
           </FormControl>
           <Stack spacing={6}>
             <Stack
               direction={{ base: 'column', sm: 'row' }}
               align={'start'}
-              justify={'space-between'}>
-              <Checkbox boxShadow='2xl'>Remember me</Checkbox>
+              justify={'space-between'}
+            >
+              <Checkbox boxShadow="2xl">Remember me</Checkbox>
               <Link color={'blue.500'}>Forgot password?</Link>
             </Stack>
             <Button colorScheme={'green'} variant={'solid'}>
@@ -60,4 +75,3 @@ export default function login() {
     </Stack>
   );
 }
-
