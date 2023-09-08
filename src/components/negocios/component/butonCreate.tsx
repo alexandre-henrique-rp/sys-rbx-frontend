@@ -73,7 +73,7 @@ export const BtCreate = (props: { user: any; onLoading: any }) => {
   const [USER, setUSER] = useState<string | null>(null);
   const { onOpen, onClose, isOpen } = useDisclosure();
   const dataAtual: Date = new Date();
-  const router= useRouter()
+  const router = useRouter()
 
   useEffect(() => {
     const usuario = props.user
@@ -137,12 +137,6 @@ export const BtCreate = (props: { user: any; onLoading: any }) => {
       .catch((err) => console.error(err));
   };
 
-
-  const getValue = (e: any) => {
-    const valor = e.target.value
-    const valor_limpo = SetValue(valor);
-    setBudgets(valor_limpo)
-  }
   return (
     <ChakraProvider theme={theme}>
       <Popover

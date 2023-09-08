@@ -92,7 +92,7 @@ export const PrazoPg = (props: { id: any; retorno: any; envio: any }) => {
               Selecione uma tabela
             </option>
             {Data.map((i: any) => {
-              console.log(i)
+              
               return (
                 <option style={{ backgroundColor: "#1A202C" }} key={i.id} value={i.attributes.value}>
                   {i.attributes.title}

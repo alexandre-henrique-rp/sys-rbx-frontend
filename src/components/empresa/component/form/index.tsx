@@ -1,3 +1,11 @@
+import { confgEnb } from "@/components/data/confgEnb";
+import { modCaix } from "@/components/data/modCaix";
+import { FormaPg } from "@/components/elements/FomaPg";
+import { CompPessoa } from "@/components/elements/lista/pessoas";
+import Loading from "@/components/elements/loading";
+import { PrazoPg } from "@/components/elements/PrazoPg";
+import { capitalizeWords } from "@/function/captalize";
+import { GetCnpj } from "@/function/getcnpj";
 import {
   Box,
   Button,
@@ -19,14 +27,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import { mask, unMask } from "remask";
-import { capitalizeWords } from "@/function/captalize";
-import { confgEnb } from "@/components/data/confgEnb";
-import { CompPessoa } from "@/components/elements/lista/pessoas";
-import { modCaix } from "@/components/data/modCaix";
-import { GetCnpj } from "@/function/getcnpj";
-import Loading from "@/components/elements/loading";
-import { PrazoPg } from "@/components/elements/PrazoPg";
-import { FormaPg } from "@/components/elements/FomaPg";
+import { RestData } from "../dataReset";
 
 export const FormEmpresa = (props: { data?: any, envio: string }) => {
   const { data: session } = useSession();
@@ -353,6 +354,60 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
     }
   };
 
+  const resetData = (data: any) => {
+  console.log("🚀 ~ file: index.tsx:358 ~ resetData ~ data:", data)
+
+    setNome(data.attributes.dados.data.nome);
+    setFantasia(data.attributes.dados.data.fantasia);
+    setHistory(data.attributes.dados.data.history)
+    setRazao(data.attributes.dados.data.razao);
+    setTipoPessoa(data.attributes.dados.data.tipoPessoa);
+    setFone(data.attributes.dados.data.fone === null ? '' : data.attributes.dados.data.fone);
+    setCelular(data.attributes.dados.data.celular === null ? "" : data.attributes.dados.data.celular);
+    setEmail(data.attributes.dados.data.email);
+    setEmailNfe(data.attributes.dados.data.emailNfe);
+    setIeStatus(data.attributes.dados.data.ieStatus);
+    setCNAE(data.attributes.dados.data.CNAE);
+    setIE(data.attributes.dados.data.Ie);
+    setPorte(data.attributes.dados.data.porte);
+    setSimples(data.attributes.dados.data.simples);
+    setSite(data.attributes.dados.data.site);
+    setEndereco(capitalizeWords(data.attributes.dados.data.endereco));
+    setNumero(data.attributes.dados.data.numero);
+    setBairro(capitalizeWords(data.attributes.dados.data.bairro));
+    setComplemento(capitalizeWords(data.attributes.dados.data.complemento));
+    setCidade(capitalizeWords(data.attributes.dados.data.cidade));
+    setUf(data.attributes.dados.data.uf);
+    setCep(data.attributes.dados.data.cep);
+    setPais(data.attributes.dados.data.pais);
+    setCodpais(data.attributes.dados.data.codpais);
+    setAdFragilLat(data.attributes.dados.data.adFrailLat);
+    setAdFragilCab(data.attributes.dados.data.adFrailCab);
+    setAdEspecialLat(data.attributes.dados.data.adEspecialLat);
+    setAdEspecialCab(data.attributes.dados.data.adEspecialCab);
+    setLatFCab(data.attributes.dados.data.latFCab);
+    setCabChao(data.attributes.dados.data.cabChao);
+    setCabTop(data.attributes.dados.data.cabTop);
+    setCxEco(data.attributes.dados.data.cxEco);
+    setCxEst(data.attributes.dados.data.cxEst);
+    setCxLev(data.attributes.dados.data.cxLev);
+    setCxRef(data.attributes.dados.data.cxRef);
+    setCxSupRef(data.attributes.dados.data.cxSupRef);
+    setPlatSMed(data.attributes.dados.data.platSMed);
+    setCxResi(data.attributes.dados.data.cxResi);
+    setEngEco(data.attributes.dados.data.engEco);
+    setEngLev(data.attributes.dados.data.engLev);
+    setEngRef(data.attributes.dados.data.engRef);
+    setEngResi(data.attributes.dados.data.engResi);
+    setTablecalc(data.attributes.dados.data.tablecalc);
+    setMaxpg(data.attributes.dados.data.maxPg);
+    setForpg(data.attributes.dados.data.forpg);
+    setFrete(data.attributes.dados.data.frete);
+    setStatus(data.attributes.dados.data.status);
+    setModEsp(data.attributes.dados.data.modEsp)
+  }
+
+
   function getResponsavel(respons: React.SetStateAction<string>) {
     setResponsavel(respons);
   }
@@ -467,6 +522,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                         rounded="md"
                         onChange={maskCnpj}
                         value={MaskCNPJ}
+                        isDisabled={session?.user.pemission !== 'Adm'}
                       />
                     </FormControl>
                     <Button
@@ -514,6 +570,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                             rounded="md"
                             onChange={(e) => setNome(capitalizeWords(e.target.value))}
                             value={nome}
+                            isDisabled={session?.user.pemission !== 'Adm'}
                           />
                         </FormControl>
                         <FormControl as={GridItem} colSpan={[5, 2]}>
@@ -975,15 +1032,15 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                               </Select>
                             </FormControl>
 
-                            <FormControl hidden={session?.user.pemission === 'Adm' ? false : true} as={GridItem} colSpan={[6,5]}>
-                            <PrazoPg id={ID} retorno={maxPg} envio={RetornoMaxpg}/>
+                            <FormControl hidden={session?.user.pemission === 'Adm' ? false : true} as={GridItem} colSpan={[6, 3]}>
+                              <PrazoPg id={ID} retorno={maxPg} envio={RetornoMaxpg} />
                             </FormControl>
 
-                            <FormControl as={GridItem} colSpan={[6]}>
-                            <FormaPg id={ID} retorno={forpg} envio={RetornoFormapg}/>
+                            <FormControl as={GridItem} colSpan={[6, 4]}>
+                              <FormaPg id={ID} retorno={forpg} envio={RetornoFormapg} />
                             </FormControl>
 
-                            <FormControl as={GridItem} colSpan={[6, 3]}>
+                            <FormControl as={GridItem} colSpan={[6, 2]}>
                               <FormLabel
                                 htmlFor="frete"
                                 fontSize="xs"
@@ -1009,6 +1066,10 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                                 <option style={{ backgroundColor: "#1A202C" }} value="CIF">CIF - Por conta da Ribermax</option>
                               </Select>
                             </FormControl>
+
+                            <FormControl as={GridItem} colSpan={[6, 3]}>
+                              <RestData CNPJ={CNPJ} onRetorno={resetData} />
+                            </FormControl>
                           </SimpleGrid>
                         </>
                       )}
@@ -1017,11 +1078,12 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                         <Heading as={GridItem} colSpan={12} size="sd">
                           Dados de contato
                         </Heading>
-                        <FormControl as={GridItem} colSpan={[6, 2, 4, 3]}>
+                        <FormControl as={GridItem} colSpan={[6, 3, 4, 3]}>
                           <Flex flexDir={'row'} alignItems={'self-end'} gap={5}>
                             <CompPessoa
                               Resp={router.query.id}
                               onAddResp={getResponsavel}
+                              cnpj={CNPJ}
                             />
 
                           </Flex>

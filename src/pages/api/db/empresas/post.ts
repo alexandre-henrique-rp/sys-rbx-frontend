@@ -28,7 +28,7 @@ export default async function PostEmpresa(
       );
 
       // Logging the response
-      await LogEmpresa(bodyData.nome, data, "POST", Vendedor);
+      await LogEmpresa(bodyData.nome, data, "POST", Vendedor, bodyData.CNPJ);
 
       // Data for the second API
       const DataRbx = {

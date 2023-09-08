@@ -40,6 +40,8 @@ export default function Infos() {
   const [Historico, setHistorico] = useState([])
   const [Negocio, setNegocio] = useState([])
   const [Interacoes, setInteracoes] = useState([])
+  const [isHovered, setIsHovered] = useState(false);
+  const [ItenIndex, setItenIndex] = useState('');
 
   const [load, setload] = useState(true)
   const toast = useToast()
@@ -187,6 +189,16 @@ export default function Infos() {
 
   const Alert = encontrarObjetoMaisProximoComCor(Interacoes)
   const letra = Alert?.cor === 'yellow' ? 'black' : 'white'
+
+  const handleMouseEnter = (i: any) => {
+    setIsHovered(true);
+    setItenIndex(i)
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setItenIndex('')
+  };
 
 
   return (
@@ -352,7 +364,7 @@ export default function Infos() {
               </Flex>
               <Flex h={'70%'} overflowY={'auto'} flexDir={'column'} gap={3}>
                 {Interacoes.map((i: any) => {
-                  console.log(i)
+
                   const [obj] = ObjContato.filter((o: any) => o.id == i.attributes?.objetivo).map((d: any) => d.title)
                   const [tipo] = TipoContato.filter((t: any) => t.id == i.attributes?.tipo).map((d: any) => d.title)
                   const date = new Date(parseISO(i.attributes?.proxima))
@@ -391,14 +403,15 @@ export default function Infos() {
               <table style={{ width: '100%' }}>
                 <thead>
                   <tr>
+                    <th style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.2rem' }}></th>
                     <th style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.2rem' }}>Etapa</th>
                     <th style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.2rem' }}>Status</th>
                     <th style={{ textAlign: 'center', fontWeight: 'bold', fontSize: '1.2rem' }}>Valor</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {Negocio.map((i: any) => {
-                    // console.log(i);
+                  {Negocio.map((i: any, index: number) => {
+                    console.log(i.id);
                     const valor = !!i.attributes?.Budget && parseFloat(i.attributes?.Budget.replace('.', '').replace(',', '.'))
 
                     const [Status] = StatusAndamento.filter((s: any) => s.id == i.attributes?.andamento).map((s: any) => s.title)
@@ -407,9 +420,12 @@ export default function Infos() {
 
                     const color = i.attributes?.etapa === 6 && i.attributes?.andamento === 1 ? 'red' : i.attributes?.etapa === 6 && i.attributes?.andamento === 5 ? 'green' : 'yellow';
 
+                    const IndexLista = `${index}`
+
                     return (
                       <>
-                        <tr>
+                        <tr key={i.id} style={{backgroundColor: isHovered && ItenIndex == IndexLista ? '#ffffff40' : 'transparent', cursor: 'pointer', transition: 'background-color 0.2s'}} onMouseEnter={() => handleMouseEnter(index)} onMouseLeave={handleMouseLeave} onClick={() => router.push(`/negocios/${i.id}`)}>
+                          <td style={{ textAlign: 'center', color: color }}>{index + 1}</td>
                           <td style={{ textAlign: 'center', color: color }}>{andamento}</td>
                           <td style={{ textAlign: 'center', color: color }}>{Status}</td>
                           <td style={{ textAlign: 'center', color: color }}>{valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>

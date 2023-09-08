@@ -1,5 +1,5 @@
 import { capitalizeWords } from '@/function/captalize';
-import { Box, Button, Flex, FormControl, FormLabel, GridItem, Heading, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, SimpleGrid, Textarea, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, Flex, FormControl, FormLabel, GridItem, Heading, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, chakra, SimpleGrid, Textarea, useDisclosure } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { PessoasData } from './pessoasdata';
 import { useSession } from 'next-auth/react';
@@ -16,8 +16,10 @@ interface pessoalResp {
   obs: string;
 }
 
-export const CompPessoa = (props: { Resp: any; onAddResp: any; }) => {
+export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
   const [dados, setDados] = useState<any>([]);
+  const [Vendedores, setVendedores] = useState<any>([]);
+  const [VendedorId, setVendedorId] = useState<any>('');
   const [ID, setID] = useState('');
   const [Nome, setNome] = useState('');
   const [Email, setEmail] = useState('');
@@ -30,9 +32,19 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; }) => {
   const [UPdate, setUPdate] = useState(false);
   const { data: session } = useSession();
 
+
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   useEffect(() => {
+    (async () => {
+      try {
+        const Response = await axios.get('/api/db/user/getGeral');
+        const dataVendedor = Response.data;
+        setVendedores(dataVendedor);
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+      }
+    })()
     if (session?.user.pemission === 'Adm') {
       (async () => {
         try {
@@ -87,7 +99,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; }) => {
       }
     }
 
-    await axios(`/api/db/representantes/port`, { method: 'POST', data: Data })
+    await axios(`/api/db/representantes/port?USER=${session?.user.name}&cnpj=${props.cnpj}`, { method: 'POST', data: Data })
       .then(async () => {
         if (session?.user.pemission === 'Adm') {
           (async () => {
@@ -127,9 +139,9 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; }) => {
     const idPessoa = idExcluir;
     (async () => {
       try {
-        const excluir = await axios.put(`/api/db/representantes/delet/${idPessoa}`);
+        const excluir = await axios.put(`/api/db/representantes/delet/${idPessoa}?USER=${session?.user.name}&cnpj=${props.cnpj}`);
         const darespostados = excluir.data;
-      
+
         if (session?.user.pemission === 'Adm') {
           (async () => {
             try {
@@ -164,9 +176,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; }) => {
   }
 
   function Atualizar(Respdata: any) {
-
-
-
+    setVendedorId(Respdata.attributes.user?.data?.id)
     setId(Respdata.id)
     setNome(Respdata.attributes.nome);
     setEmail(Respdata.attributes.email);
@@ -191,11 +201,11 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; }) => {
           departamento: Departamento,
           cargo: Cargo,
           obs: Obs,
-          user: session?.user?.id,
-          permissao: session?.user?.pemission
+          user: VendedorId,
+          permissao: VendedorId == session?.user?.id ? 'User' : 'Adm',
         }
       }
-      await axios.put(`/api/db/representantes/put/${Id}`, objetoAtualizado)
+      await axios.put(`/api/db/representantes/put/${Id}?USER=${session?.user.name}&cnpj=${props.cnpj}`, objetoAtualizado)
         .then(async () => {
           if (session?.user.pemission === 'Adm') {
             (async () => {
@@ -380,6 +390,45 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; }) => {
                     value={Cargo}
                   />
                 </FormControl>
+                {session?.user.pemission === 'Adm' && <FormControl as={GridItem} colSpan={9}>
+                  <FormLabel
+                    fontSize="xs"
+                    fontWeight="md"
+                  >
+                    Vendedor
+                  </FormLabel>
+                  <Select
+                    focusBorderColor="white"
+                    bg={'#ffffff12'}
+                    shadow="sm"
+                    size="xs"
+                    w="full"
+                    rounded="md"
+                    onChange={(e) => setVendedorId(e.target.value)}
+                    value={VendedorId}
+
+                  >
+                    <option
+                      style={{ backgroundColor: '#515151', color: 'white' }}
+                      value=''
+                    ></option>
+                    {Vendedores.map((i: any) => {
+                      return (
+                        <option
+                          key={i.id}
+                          // bg={'gray.600'}
+                          style={{ backgroundColor: '#515151', color: 'white' }}
+                          value={i.id}
+                        >
+                          {i.username}
+                        </option>
+                      );
+                    })}
+
+                  </Select>
+                  <pre>{VendedorId}</pre>
+                </FormControl>
+                }
 
               </SimpleGrid>
 

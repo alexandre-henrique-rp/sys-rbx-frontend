@@ -1,5 +1,6 @@
 import { primeiroNome } from "@/function/Mask/primeName";
 import { Box, Button, Flex, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverFooter, PopoverHeader, PopoverTrigger, Portal, Text, useDisclosure } from "@chakra-ui/react";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 
@@ -9,6 +10,7 @@ export const PessoasData = (props: { data: any; respData: any; respAtualizar: an
   const { onOpen, onClose, isOpen } = useDisclosure()
   const [dados, setDados] = useState<any>([]);
   const [ID, setID] = useState('');
+  const { data: session } = useSession();
 
 
   if (props.data && dados.length === 0) {
@@ -18,6 +20,7 @@ export const PessoasData = (props: { data: any; respData: any; respAtualizar: an
 
   const color = !dados.user?.data ? 'red.500' : 'messenger.500'
   const colorButton = !dados.user?.data ? 'red' : 'messenger'
+
 
   return (
     <>
@@ -56,11 +59,12 @@ export const PessoasData = (props: { data: any; respData: any; respAtualizar: an
                     {!!dados.departamento && <Text>Departamento: {dados.departamento},</Text>}
                     {!!dados.cargo && <Text>cargo: {dados.cargo},</Text>}
                     {!!dados.obs && <Text mt={1}>Obs: {dados.obs},</Text>}
+                    {!!dados.user?.data?.attributes.username && session?.user.pemission === 'Adm' ? <Text mt={1}>Vendedor: {dados.user?.data?.attributes.username},</Text> : <></>}
                   </Box>
                 </PopoverBody>
                 <PopoverFooter>
                   <Flex w={'full'} justifyContent={'end'} gap={5}>
-                    <Button colorScheme='red' onClick={() => {
+                    <Button colorScheme='red' isDisabled={!dados.user?.data} onClick={() => {
                       props.respData(ID)
                       onClose()
                     }}
