@@ -136,6 +136,7 @@ export default function Infos() {
       const dados = {
         data: {
           "vendedor": session?.user.id,
+          "vendedor_name": session?.user.name,
           "empresa": ID,
           "descricao": Descricao,
           "tipo": parseInt(Tipo),

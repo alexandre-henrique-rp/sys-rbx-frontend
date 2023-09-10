@@ -119,6 +119,7 @@ export const BtCreate = (props: { user: any; onLoading: any }) => {
       empresa: Empresa,
       history: historico,
       vendedor: session?.user.id,
+      vendedor_name: session?.user.name,
       DataRetorno: dataAtual.toISOString(),
       incidentRecord: [MSG],
       etapa: 2,

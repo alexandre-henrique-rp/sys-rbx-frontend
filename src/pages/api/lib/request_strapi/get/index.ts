@@ -22,7 +22,6 @@ export const GET_Strapi = async (url: string) => {
     });
 
     const response = await STRAPI.get(url);
-    console.log("registro salvo", response.data.data);
     return response.data;
   } catch (err: any) {
     console.log("registro erro", err.response.data);

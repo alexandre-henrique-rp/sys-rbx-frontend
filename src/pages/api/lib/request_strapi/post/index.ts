@@ -25,7 +25,7 @@ export const POST_Strapi = async (dados: any, url: string) => {
     console.log("registro salvo", response.data.data);
     return response.data;
   } catch (err: any) {
-    console.log("registro erro", err.response.data);
-    return err.response.data;
+    console.log("registro erro", err);
+    return err;
   }
 };

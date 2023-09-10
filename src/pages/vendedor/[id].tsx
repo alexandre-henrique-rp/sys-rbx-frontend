@@ -4,6 +4,8 @@ import { TabelaVendasVendedor } from "@/components/vendedor/componente/form/tabe
 import { Divider, Flex} from "@chakra-ui/react";
 import { useRouter } from "next/router";
 
+
+
 export default function VendedorId() {
   const router = useRouter()
   const { id } = router.query

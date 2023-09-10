@@ -1,109 +1,144 @@
 import { CarteiraAusente } from "@/components/empresa/component/empresas_ausente";
 import { CarteiraVendedor } from "@/components/empresa/component/empresas_vendedor";
 import { FiltroEmpresa } from "@/components/empresa/component/fitro/empresa";
-import { Box, Button, Flex, Heading, chakra, useToast } from "@chakra-ui/react";
-import { useSession } from "next-auth/react";
+import { Box, Button, Flex, Heading, useToast } from "@chakra-ui/react";
+import { parseISO, startOfDay } from "date-fns";
+import { GetServerSideProps } from "next";
+import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 
-/**
- * This function filters the list of empresas based on the given SearchEmpr parameter.
- *
- * @param {React.SetStateAction<any>} SearchEmpr - The value to filter the empresas list.
- * @return {AnyCnameRecord} This function does not return anything.
- */
+export const getServerSideProps: GetServerSideProps<{ dataRetorno: any }> = async (context) => {
+  const res = await fetch('http://localhost:3000/api/db/empresas/empresalist');
+  const repo = await res.json();
+  const session = await getSession({ req: context.req });
 
-function Empresas(): any {
+  const calcularDiferencaEmDias = (data1: Date, data2: Date): number => {
+    const umDiaEmMilissegundos = 24 * 60 * 60 * 1000;
+    const data1UTC = Date.UTC(data1.getFullYear(), data1.getMonth(), data1.getDate());
+    const data2UTC = Date.UTC(data2.getFullYear(), data2.getMonth(), data2.getDate());
+    return Math.floor((data2UTC - data1UTC) / umDiaEmMilissegundos);
+  };
+
+  const dataAtual = startOfDay(new Date());
+  const filtroVendedor = repo.filter((f: any) => f.attributes.user.data?.attributes.username === session?.user.name);
+  const VendedorInteracao = filtroVendedor.filter((f: any) => f.attributes.interacaos.data?.length > 0);
+
+  const VendedorInteracaoMap = VendedorInteracao.map((i: any) => {
+    const interacao = i.attributes.interacaos.data;
+    const ultimaInteracao = interacao[interacao.length - 1];
+    const proximaData = startOfDay(parseISO(ultimaInteracao.attributes.proxima));
+    const diferencaEmDias = calcularDiferencaEmDias(dataAtual, proximaData);
+
+    let RetornoInteracao;
+    if (diferencaEmDias === 0) {
+      RetornoInteracao = { proxima: proximaData.toISOString(), cor: 'yellow', info: 'Você tem interação agendada para hoje' };
+    } else if (diferencaEmDias < 0) {
+      RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#FC0707', info: `Você tem interação que já passou, a data agendada era ${proximaData.toLocaleDateString()}` };
+    } else {
+      RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#3B2DFF', info: `Você tem interação agendada para ${proximaData.toLocaleDateString()}` };
+    }
+
+    return {
+      id: i.id,
+      attributes: {
+        ...i.attributes,
+        interacaos: {
+          data: {
+            id: ultimaInteracao?.id,
+            proxima: RetornoInteracao?.proxima,
+            cor: RetornoInteracao?.cor,
+            info: RetornoInteracao?.info,
+          }
+        },
+        diferencaEmDias: diferencaEmDias // Adicione a diferença de dias como uma propriedade
+      }
+    };
+  });
+
+  VendedorInteracaoMap.sort((a: any, b: any) => {
+    return a.attributes.diferencaEmDias - b.attributes.diferencaEmDias;
+  });
+
+  const VendedorInteracao0 = filtroVendedor.filter((f: any) => f.attributes.interacaos.data?.length === 0);
+
+  const DataVendedor: any = [...VendedorInteracaoMap, ...VendedorInteracao0];
+
+
+  // ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+  // sem vendedor
+
+  const filtroSemVendedor = repo.filter((f: any) => f.attributes.user.data?.attributes.username == null)
+  const SemVendedorInteracao = filtroSemVendedor.filter((f: any) => f.attributes.interacaos.data?.length > 0);
+
+  const SemVendedorInteracaoMap = SemVendedorInteracao.map((i: any) => {
+    const interacao = i.attributes.interacaos.data;
+    const FilterDateNull = interacao.filter((n: any) => n.attributes.proxima === null);
+
+    const ultimaInteracao = interacao[interacao.length - 1];
+    const proximaData = startOfDay(parseISO(ultimaInteracao.attributes.proxima));
+    const diferencaEmDias = calcularDiferencaEmDias(dataAtual, proximaData);
+
+    let RetornoInteracao;
+    // if(FilterDateNull) {
+    //   RetornoInteracao = { proxima: null, cor: 'gray', info: 'Você não tem interação agendada' }
+    // }
+    if (diferencaEmDias === 0) {
+      RetornoInteracao = { proxima: proximaData.toISOString(), cor: 'yellow', info: 'Você tem interação agendada para hoje' };
+    } else if (diferencaEmDias < 0) {
+      RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#FC0707', info: `Você tem interação que já passou, a data agendada era ${proximaData.toLocaleDateString()}` };
+    } else {
+      RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#3B2DFF', info: `Você tem interação agendada para ${proximaData.toLocaleDateString()}` };
+    }
+
+    return {
+      id: i.id,
+      attributes: {
+        ...i.attributes,
+        interacaos: {
+          data: {
+            id: ultimaInteracao?.id,
+            proxima: RetornoInteracao?.proxima,
+            cor: RetornoInteracao?.cor,
+            info: RetornoInteracao?.info,
+          }
+        },
+        diferencaEmDias: diferencaEmDias // Adicione a diferença de dias como uma propriedade
+      }
+    };
+  });
+
+  SemVendedorInteracaoMap.sort((a: any, b: any) => {
+    return a.attributes.diferencaEmDias - b.attributes.diferencaEmDias;
+  });
+
+  const SemVendedorInteracao0 = filtroSemVendedor.filter((f: any) => f.attributes.interacaos.data?.length == 0);
+
+
+  const DataVendedorSemVendedor: any = [...SemVendedorInteracaoMap, ...SemVendedorInteracao0];
+
+  const dataRetorno = { DataVendedor, DataVendedorSemVendedor };
+
+  return { props: { dataRetorno } };
+};
+
+function Empresas({dataRetorno}: any) {
   const router = useRouter();
   const { data: session } = useSession();
-  const [DataSearch, setDataSearch] = useState<any | null>({ status: 0, data: [] });
-  const [DataSearchUser, setDataSearchUser] = useState<any | null>({ status: 0, data: [] });
+  const [DataSearch, setDataSearch] = useState<any | null>(dataRetorno.DataVendedorSemVendedor);
+  const [DataSearchUser, setDataSearchUser] = useState<any | null>(dataRetorno.DataVendedor);
   const toast = useToast()
 
   function filterEmpresa(SearchEmpr: React.SetStateAction<any>): any {
-    (async () => {
       const filtro = SearchEmpr.toLowerCase();
-      const resultadouser: any = [];
-      const resultado: any = [];
-      const resultFilter = await fetch(`/api/db/empresas/search/empresa?EMPRESA=${filtro}`)
-      const response = await resultFilter.json()
-      if (response.length === 0 && filtro) {
-        return toast({
-          title: `Opa`,
-          description: `A empresa ${filtro}, não se encontra em nosso registros`,
-          status: 'success',
-          duration: 2500,
-          isClosable: true,
-        })
-      }
-      response.forEach((item: any) => {
-        const username = item.attributes.user.data?.attributes.username;
-        if (session?.user.pemission === "Adm") {
-          if (username === session?.user.name) {
-            resultadouser.push(item);
-          } else if (!username) {
-            resultado.push(item);
-          } else if (username) {
+      const vendedor = dataRetorno.DataVendedor
+      const semVendedor = dataRetorno.DataVendedorSemVendedor
 
-            if (username !== session?.user.name) {
-              resultado.push(item);
-              if (filtro) {
-                if (session?.user.pemission !== "Adm") {
-                  return toast({
-                    render: (): any => (
-                      <Box color='white' py={1} px={3} bg='yellow.600' textAlign={'center'} rounded={8}>
-                        <chakra.p>{item.attributes.nome}</chakra.p>
-                        <chakra.p>CNPJ: {item.attributes.CNPJ}</chakra.p>
-                        <chakra.p> Carteira: {item.attributes.user.data?.attributes.username}</chakra.p>
-                      </Box>
-                    ),
-                    status: 'warning',
-                    duration: 2500,
-                    isClosable: true,
-                    position: 'top',
-                  })
-                }
-              }
-            }
-          }
-        } else {
-          if (username === session?.user.name) {
-            resultadouser.push(item);
-          } else if (!username) {
+      const PesqisaArrayVendedor = vendedor.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
+      const PesqisaArraySemVendedor = semVendedor.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
+      setDataSearchUser(PesqisaArrayVendedor);
+      setDataSearch(PesqisaArraySemVendedor);
 
-            resultado.push(item);
-          } else if (username) {
-            if (username !== session?.user.name) {
-              if (filtro) {
-                if (session?.user.pemission !== "Adm") {
-                  return toast({
-                    render: () => (
-                      <Box color='white' py={1} px={3} bg='yellow.600' textAlign={'center'} rounded={8}>
-                        <chakra.p>{item.attributes.nome}</chakra.p>
-                        <chakra.p>CNPJ: {item.attributes.CNPJ}</chakra.p>
-                        <chakra.p> Carteira: {item.attributes.user.data?.attributes.username}</chakra.p>
-                      </Box>
-                    ),
-                    status: 'warning',
-                    duration: 2500,
-                    isClosable: true,
-                    position: 'top',
-                  })
-                }
-              }
-            }
-          }
-        }
-      })
-
-      if (filtro.length === 0) {
-        setDataSearchUser({ status: 0, data: [] })
-        setDataSearch({ status: 0, data: [] })
-      } else {
-        setDataSearchUser({ status: 1, data: resultadouser })
-        setDataSearch({ status: 1, data: resultado })
-      }
-    })();
   };
 
   return (
@@ -119,6 +154,8 @@ function Empresas(): any {
         <Box display={'flex'} flexDirection={{ base: 'column', lg: 'row' }} w={'100%'} h={'76%'} pt={5} gap={5} >
           <CarteiraVendedor filtro={DataSearchUser} />
           <CarteiraAusente filtro={DataSearch} />
+          {/* <pre>{JSON.stringify(DataSearchUser, null, 2)}</pre>
+          <pre>{JSON.stringify(DataSearch, null, 2)}</pre> */}
         </Box>
       </Box>
     </>
