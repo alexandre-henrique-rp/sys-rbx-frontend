@@ -72,8 +72,7 @@ const Vendedor: React.FC = ({ repo }: any) => {
       console.log(salve2.data);
       const ResponseLista = await axios.get('/api/db/user/getGeral');
       setData(ResponseLista.data);
-      console.log("🚀 ~ file: index.tsx:73 ~ Sal ~ ResponseLista.data:", ResponseLista.data)
-      console.log("🚀 ~ file: index.tsx:73 ~ Sal ~ ResponseLista.data:", data)
+      
       setBloq(false);
 
     } catch (error) {
