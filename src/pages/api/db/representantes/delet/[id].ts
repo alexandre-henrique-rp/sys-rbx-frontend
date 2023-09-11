@@ -54,7 +54,7 @@ export default async function GetEmpresa(
         .then(async (Response) => {
           // res.status(200).json(Response.data);
           console.log(Response.data);
-          await LogEmpresa(Response.data.data.attributes.nome, Response.data.data, "PUT", USER, cnpj);
+          await LogEmpresa(Response.data.data, "PUT", USER);
         })
         .catch((err) => {
           console.log("🚀 ~ file: [id].ts:27 ~ err:", err)
