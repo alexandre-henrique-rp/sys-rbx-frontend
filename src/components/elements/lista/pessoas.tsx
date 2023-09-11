@@ -31,6 +31,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
   const [Id, setId] = useState<number>();
   const [UPdate, setUPdate] = useState(false);
   const { data: session } = useSession();
+  const [Bloq, setBloq] = useState(false);
 
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -83,7 +84,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
   }
 
   const SaveAdd = async () => {
-
+    setBloq(true)
     const Data = {
       data: {
         nome: Nome,
@@ -110,8 +111,10 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
               setDados(dados)
               onClose()
               reset()
+              setBloq(false)
             } catch (error) {
               console.error("Erro ao buscar dados:", error);
+              setBloq(false)
             }
           })()
         } else {
@@ -123,14 +126,17 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
               setDados(dados)
               onClose()
               reset()
+              setBloq(false)
             } catch (error) {
               console.error("Erro ao buscar dados:", error);
+              setBloq(false)
             }
           })()
         }
       })
       .catch((err) => {
         console.error(err)
+        setBloq(false)
       })
   }
 
@@ -138,6 +144,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
   function Remover(idExcluir: any) {
     const idPessoa = idExcluir;
     (async () => {
+      setBloq(true)
       try {
         const excluir = await axios.put(`/api/db/representantes/delet/${idPessoa}?USER=${session?.user.name}&cnpj=${props.cnpj}`);
         const darespostados = excluir.data;
@@ -151,8 +158,10 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
               setDados(dados)
               onClose()
               reset()
+              setBloq(false)
             } catch (error) {
               console.error("Erro ao buscar dados:", error);
+              setBloq(false)
             }
           })()
         } else {
@@ -164,13 +173,16 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
               setDados(dados)
               onClose()
               reset()
+              setBloq(false)
             } catch (error) {
               console.error("Erro ao buscar dados:", error);
+              setBloq(false)
             }
           })()
         }
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
+        setBloq(false)
       }
     })()
   }
@@ -192,6 +204,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
 
   function Update() {
     (async () => {
+      setBloq(true)
       const objetoAtualizado = {
         data: {
           nome: Nome,
@@ -216,8 +229,10 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
                 setDados(dados)
                 onClose()
                 reset()
+                setBloq(false)
               } catch (error) {
                 console.error("Erro ao buscar dados:", error);
+                setBloq(false)
               }
             })()
           } else {
@@ -229,14 +244,17 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
                 setDados(dados)
                 onClose()
                 reset()
+                setBloq(false)
               } catch (error) {
                 console.error("Erro ao buscar dados:", error);
+                setBloq(false)
               }
             })()
           }
         })
         .catch((err) => {
           console.error(err)
+          setBloq(false)
         })
     })()
 
@@ -454,8 +472,8 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
 
           </ModalBody>
           <ModalFooter>
-            {!UPdate && <Button colorScheme='blue' mr={3} onClick={SaveAdd}>Adicionar</Button>}
-            {!!UPdate && <Button colorScheme='blue' mr={3} onClick={Update}>Atualizar</Button>}
+            {!UPdate && <Button colorScheme='blue' mr={3} isDisabled={Bloq} onClick={SaveAdd}>Adicionar</Button>}
+            {!!UPdate && <Button colorScheme='blue' mr={3} isDisabled={Bloq} onClick={Update}>Atualizar</Button>}
 
           </ModalFooter>
         </ModalContent>

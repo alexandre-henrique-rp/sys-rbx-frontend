@@ -3,7 +3,7 @@ import { CarteiraVendedor } from "@/components/empresa/component/empresas_vended
 import { FiltroEmpresa } from "@/components/empresa/component/fitro/empresa";
 import { Box, Button, Flex, Heading, useToast } from "@chakra-ui/react";
 import axios from "axios";
-import { parseISO, startOfDay } from "date-fns";
+import { addDays, parseISO, startOfDay } from "date-fns";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -14,7 +14,10 @@ function Empresas({ dataRetorno }: any) {
   const router = useRouter();
   const { data: session } = useSession();
   const [DataSearch, setDataSearch] = useState<any | null>([]);
+  const [DataSearchOriginal, setDataSearchOriginal] = useState<any | null>([]);
   const [DataSearchUser, setDataSearchUser] = useState<any | null>([]);
+  const [DataSearchUserOriginal, setDataSearchUserOriginal] = useState<any | null>([]);
+  const [DataTotal, setDataTotal] = useState<any | null>([]);
   const toast = useToast()
 
   useEffect(() => {
@@ -22,7 +25,7 @@ function Empresas({ dataRetorno }: any) {
     (async () => {
       try {
         const res = await axios('/api/db/empresas/empresalist');
-        const repo =  res.data;
+        const repo = res.data;
 
         const calcularDiferencaEmDias = (data1: Date, data2: Date): number => {
           const umDiaEmMilissegundos = 24 * 60 * 60 * 1000;
@@ -30,7 +33,7 @@ function Empresas({ dataRetorno }: any) {
           const data2UTC = Date.UTC(data2.getFullYear(), data2.getMonth(), data2.getDate());
           return Math.floor((data2UTC - data1UTC) / umDiaEmMilissegundos);
         };
-
+        setDataTotal(repo);
         const dataAtual = startOfDay(new Date());
         const filtroVendedor = repo.filter((f: any) => f.attributes.user.data?.attributes.username === session?.user.name);
         const VendedorInteracao = filtroVendedor.filter((f: any) => f.attributes.interacaos.data?.length > 0);
@@ -42,14 +45,16 @@ function Empresas({ dataRetorno }: any) {
           const diferencaEmDias = calcularDiferencaEmDias(dataAtual, proximaData);
 
           let RetornoInteracao;
-          if (ultimaInteracao.attributes.status_atendimento === false) {
-            RetornoInteracao = { proxima: null, cor: 'gray', info: 'Você não tem interação agendada' }
-          } else if (diferencaEmDias === 0) {
+          if (ultimaInteracao.attributes.status_atendimento === false && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
+            RetornoInteracao = { proxima: addDays(dataAtual, 30), cor: 'gray', info: 'Você não tem interação agendada' }
+          } else if (diferencaEmDias === 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
             RetornoInteracao = { proxima: proximaData.toISOString(), cor: 'yellow', info: 'Você tem interação agendada para hoje' };
-          } else if (diferencaEmDias < 0) {
+          } else if (diferencaEmDias < 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
             RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#FC0707', info: `Você tem interação que já passou, a data agendada era ${proximaData.toLocaleDateString()}` };
-          } else {
+          } else if (diferencaEmDias > 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
             RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#3B2DFF', info: `Você tem interação agendada para ${proximaData.toLocaleDateString()}` };
+          } else {
+            RetornoInteracao = { proxima: null, cor: 'transparent', info: "" };
           }
 
           return {
@@ -88,14 +93,16 @@ function Empresas({ dataRetorno }: any) {
           const diferencaEmDias = calcularDiferencaEmDias(dataAtual, proximaData);
 
           let RetornoInteracao;
-          if (ultimaInteracao.attributes.status_atendimento === false) {
-            RetornoInteracao = { proxima: null, cor: 'gray', info: 'Você não tem interação agendada' }
-          } else if (diferencaEmDias === 0) {
+          if (ultimaInteracao.attributes.status_atendimento === false && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
+            RetornoInteracao = { proxima: addDays(dataAtual, 30), cor: 'gray', info: 'Você não tem interação agendada' }
+          } else if (diferencaEmDias === 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
             RetornoInteracao = { proxima: proximaData.toISOString(), cor: 'yellow', info: 'Você tem interação agendada para hoje' };
-          } else if (diferencaEmDias < 0) {
+          } else if (diferencaEmDias < 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
             RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#FC0707', info: `Você tem interação que já passou, a data agendada era ${proximaData.toLocaleDateString()}` };
-          } else {
+          } else if (diferencaEmDias > 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
             RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#3B2DFF', info: `Você tem interação agendada para ${proximaData.toLocaleDateString()}` };
+          } else {
+            RetornoInteracao = { proxima: null, cor: 'transparent', info: "" };
           }
 
           return {
@@ -122,6 +129,8 @@ function Empresas({ dataRetorno }: any) {
         const SemVendedorInteracao0 = filtroSemVendedor.filter((f: any) => f.attributes.interacaos.data?.length == 0);
         const DataVendedorSemVendedor: any = [...SemVendedorInteracaoMap, ...SemVendedorInteracao0];
 
+        setDataSearchOriginal(DataVendedorSemVendedor);
+        setDataSearchUserOriginal(DataVendedor);
         setDataSearch(DataVendedorSemVendedor);
         setDataSearchUser(DataVendedor);
 
@@ -129,7 +138,7 @@ function Empresas({ dataRetorno }: any) {
         console.log(error);
         toast({
           title: 'Erro',
-          description: 'Erro ao buscar dados, '+ JSON.stringify(error),
+          description: 'Erro ao buscar dados, ' + JSON.stringify(error),
           status: 'error',
           duration: 9000,
           isClosable: true,
@@ -142,14 +151,31 @@ function Empresas({ dataRetorno }: any) {
 
   function filterEmpresa(SearchEmpr: React.SetStateAction<any>): any {
     const filtro = SearchEmpr.toLowerCase();
-    const vendedor = dataRetorno.DataVendedor
-    const semVendedor = dataRetorno.DataVendedorSemVendedor
+    console.log("🚀 ~ file: index.tsx:149 ~ filterEmpresa ~ filtro:", filtro)
 
-    const PesqisaArrayVendedor = vendedor.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
-    const PesqisaArraySemVendedor = semVendedor.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
+    const PesqisaArrayVendedor = DataSearchUserOriginal.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
+    const PesqisaArraySemVendedor = DataSearchOriginal.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
+
+
+    const PesqisaArrayTotal = DataTotal.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
+    console.log("🚀 ~ file: index.tsx:161 ~ filterEmpresa ~ PesqisaArrayTotal:", PesqisaArrayTotal)
+    const PesquisaTotal = PesqisaArrayTotal.filter((f: any) => f.attributes.user.data?.attributes.username !== session?.user.name && f.attributes.user.data !== null);
+    console.log("🚀 ~ file: index.tsx:160 ~ filterEmpresa ~ PesquisaTotal:", PesquisaTotal)
+    if (PesquisaTotal.length > 0) {
+     PesquisaTotal.map((i: any) => {
+        const vendedor = i.attributes.user.data?.attributes.username
+        toast({
+          title: 'Opss',
+          description: `O cliente ${i.attributes.nome}, perece a o Vendedor(a) ${vendedor}`,
+          status: 'warning',
+          duration: 9000,
+          isClosable: true,
+          position: 'top-right',
+        })
+      })
+    }
     setDataSearchUser(PesqisaArrayVendedor);
     setDataSearch(PesqisaArraySemVendedor);
-
   };
 
   return (

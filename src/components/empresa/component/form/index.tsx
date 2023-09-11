@@ -522,7 +522,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                         rounded="md"
                         onChange={maskCnpj}
                         value={MaskCNPJ}
-                        isDisabled={session?.user.pemission !== 'Adm'}
+                        isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'PUT'}
                       />
                     </FormControl>
                     <Button
@@ -531,6 +531,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                       h={8}
                       mt={5}
                       colorScheme="messenger"
+                      isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'PUT'}
                       onClick={consulta}
                     >
                       Buscar dados
@@ -541,6 +542,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                         borderColor="gray.900"
                         rounded="md"
                         isChecked={status}
+                        isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'PUT'}
                         onChange={(e) => setStatus(e.target.checked)}
                       />
                     </Box>
@@ -570,7 +572,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                             rounded="md"
                             onChange={(e) => setNome(capitalizeWords(e.target.value))}
                             value={nome}
-                            isDisabled={session?.user.pemission !== 'Adm'}
+                            isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'PUT'}
                           />
                         </FormControl>
                         <FormControl as={GridItem} colSpan={[5, 2]}>

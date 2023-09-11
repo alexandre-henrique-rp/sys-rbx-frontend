@@ -190,7 +190,9 @@ export default function Infos() {
     }
   }
 
-  const Alert = encontrarObjetoMaisProximoComCor(Interacoes)
+  const vendedor: any = session?.user.name
+
+  const Alert = encontrarObjetoMaisProximoComCor(Interacoes, vendedor)
   const letra = Alert?.cor === 'yellow' ? 'black' : 'white'
 
   const handleMouseEnter = (i: any) => {
