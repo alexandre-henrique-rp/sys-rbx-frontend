@@ -6,7 +6,7 @@ import { parseISO, startOfDay } from "date-fns";
 import { GetServerSideProps } from "next";
 import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export const getServerSideProps: GetServerSideProps<{ dataRetorno: any }> = async (context) => {
   const res = await fetch('http://localhost:3000/api/db/empresas/empresalist');
@@ -124,9 +124,16 @@ export const getServerSideProps: GetServerSideProps<{ dataRetorno: any }> = asyn
 function Empresas({dataRetorno}: any) {
   const router = useRouter();
   const { data: session } = useSession();
-  const [DataSearch, setDataSearch] = useState<any | null>(dataRetorno.DataVendedorSemVendedor);
-  const [DataSearchUser, setDataSearchUser] = useState<any | null>(dataRetorno.DataVendedor);
+  const [DataSearch, setDataSearch] = useState<any | null>([]);
+  const [DataSearchUser, setDataSearchUser] = useState<any | null>([]);
   const toast = useToast()
+
+  useEffect(() => {
+    if(dataRetorno){
+      setDataSearch(dataRetorno.DataVendedorSemVendedor);
+      setDataSearchUser(dataRetorno.DataVendedor);
+    }
+  }, [dataRetorno])
 
   function filterEmpresa(SearchEmpr: React.SetStateAction<any>): any {
       const filtro = SearchEmpr.toLowerCase();
