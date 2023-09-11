@@ -1,19 +1,10 @@
 import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { Box, Button, Flex, FormControl, FormHelperText, FormLabel, Heading, IconButton, Input, InputGroup, InputRightElement, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast } from "@chakra-ui/react";
 import axios from "axios";
-import { GetServerSideProps } from "next";
-import { getSession, useSession } from "next-auth/react";
+import {  useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MdOutlineAddCircleOutline } from "react-icons/md";
-
-export const getServerSideProps: GetServerSideProps<{ repo: any }> = async (context) => {
-  const res = await fetch('http://localhost:3000/api/db/user/getGeral');
-  const repo = await res.json();
-  const session = await getSession({ req: context.req });
-
-  return { props: { repo } };
-};
 
 const Vendedor: React.FC = ({ repo }: any) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,11 +14,23 @@ const Vendedor: React.FC = ({ repo }: any) => {
   const [Record, setRecord] = useState('');
   const [PassWord, setPassWord] = useState('');
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [Data, setData] = useState<any | null>(repo);
+  const [Data, setData] = useState<any | null>([]);
   const [Bloq, setBloq] = useState(false);
   const toast = useToast();
   const router = useRouter();
   const { data: session } = useSession();
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch('http://localhost:3000/api/db/user/getGeral');
+        const repo = await res.json();
+        setData(repo);
+      } catch (error) {
+        console.log(error);
+      }
+    })()
+  }, []);
 
 
   const Salvar = async () => {
@@ -62,7 +65,6 @@ const Vendedor: React.FC = ({ repo }: any) => {
         "data": {
           "vendedor": data.username,
           "user": data.id,
-          "record": Record,
         }
       }
 
