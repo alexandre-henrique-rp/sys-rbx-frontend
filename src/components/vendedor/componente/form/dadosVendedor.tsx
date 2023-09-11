@@ -13,6 +13,7 @@ export const DadosVendedor = (props: { id: any }) => {
   const [Recorde, setRecorde] = useState('');
   const [Status, setStatus] = useState('');
   const toast = useToast();
+  const [Bloq, setBloq] = useState(false);
 
 
   useEffect(() => {
@@ -35,6 +36,7 @@ export const DadosVendedor = (props: { id: any }) => {
 
 
   const salvar = async () => {
+    setBloq(true);
     try {
       const Data = {
         username: Nome,
@@ -60,8 +62,17 @@ export const DadosVendedor = (props: { id: any }) => {
         duration: 3000,
         isClosable: true
       });
+      setBloq(false);
     } catch (error) {
       console.log(error);
+      toast({
+        title: 'Erro',
+        description: 'Erro ao cadastrar usuario,' + JSON.stringify(error),
+        status: 'error',
+        duration: 9000,
+        isClosable: true
+      })
+      setBloq(false);
     }
   }
 
@@ -165,7 +176,7 @@ export const DadosVendedor = (props: { id: any }) => {
         </Flex>
 
         <Flex gap={4} justifyContent={'end'}>
-          <Button colorScheme="green" onClick={salvar}>Salvar</Button>
+          <Button colorScheme="green" isDisabled={Bloq} onClick={salvar}>Salvar</Button>
           <Button colorScheme="red">Excluir</Button>
         </Flex>
 

@@ -2,7 +2,7 @@ import { ViewIcon, ViewOffIcon } from "@chakra-ui/icons";
 import { Box, Button, Flex, FormControl, FormHelperText, FormLabel, Heading, IconButton, Input, InputGroup, InputRightElement, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Table, TableContainer, Tbody, Td, Th, Thead, Tr, useDisclosure, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { GetServerSideProps } from "next";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { MdOutlineAddCircleOutline } from "react-icons/md";
@@ -27,6 +27,7 @@ const Vendedor: React.FC = ({ repo }: any) => {
   const [Bloq, setBloq] = useState(false);
   const toast = useToast();
   const router = useRouter();
+  const { data: session } = useSession();
 
 
   const Salvar = async () => {
@@ -42,7 +43,8 @@ const Vendedor: React.FC = ({ repo }: any) => {
         password: PassWord,
         tel: Tel,
         record: Record,
-        role: 1
+        role: 1,
+        confirmed: true
       };
 
       const Response = await axios.post('/api/db/user/post', DadosSave);
@@ -56,9 +58,20 @@ const Vendedor: React.FC = ({ repo }: any) => {
         isClosable: true,
       });
 
-      console.log(data);
-      const ResponseLista = await axios.get('/api/db/user/get');
+      const data2 = {
+        "data": {
+          "vendedor": data.username,
+          "user": data.id,
+          "record": Record,
+        }
+      }
+
+      const salve2 = await axios.post('/api/db/config/post', data2);
+      console.log(salve2.data);
+      const ResponseLista = await axios.get('/api/db/user/getGeral');
       setData(ResponseLista.data);
+      console.log("🚀 ~ file: index.tsx:73 ~ Sal ~ ResponseLista.data:", ResponseLista.data)
+      console.log("🚀 ~ file: index.tsx:73 ~ Sal ~ ResponseLista.data:", data)
       setBloq(false);
 
     } catch (error) {

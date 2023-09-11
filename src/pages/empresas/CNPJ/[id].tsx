@@ -9,7 +9,7 @@ import { MaskCnpj } from "@/function/Mask/cnpj";
 import { formatarTelefone } from "@/function/Mask/telefone-whatsapp";
 import { encontrarObjetoMaisProximoComCor } from "@/function/aviso";
 import { capitalizeWords } from "@/function/captalize";
-import { Box, Divider, Flex, chakra, Heading, IconButton, useToast, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, Button, useDisclosure, FormControl, FormLabel, GridItem, Input, SimpleGrid, Textarea, Select, Link } from "@chakra-ui/react";
+import { Box, Divider, Flex, chakra, Heading, IconButton, useToast, Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, Button, useDisclosure, FormControl, FormLabel, GridItem, Input, SimpleGrid, Textarea, Select, Link, Switch } from "@chakra-ui/react";
 import axios from "axios";
 import { parseISO } from "date-fns";
 import { useSession } from "next-auth/react";
@@ -41,6 +41,7 @@ export default function Infos() {
   const [Negocio, setNegocio] = useState([])
   const [Interacoes, setInteracoes] = useState([])
   const [isHovered, setIsHovered] = useState(false);
+  const [StatusAt, setStatusAt] = useState(true);
   const [ItenIndex, setItenIndex] = useState('');
 
   const [load, setload] = useState(true)
@@ -54,7 +55,7 @@ export default function Infos() {
         const request = await axios(`/api/db/empresas/getId/${ID}`);
         const response = request.data?.data;
 
-        if(session?.user.pemission === 'Adm'){
+        if (session?.user.pemission === 'Adm') {
           (async () => {
             try {
               const request = await axios(`/api/db/representantes/get?Vendedor=${session?.user.name}&Empresa=${ID}&Adm=true`);
@@ -143,7 +144,8 @@ export default function Infos() {
           "objetivo": parseInt(Objetivo),
           "proxima": Proximo,
           "pontual": true,
-          "CNPJ": CNPJ
+          "CNPJ": CNPJ,
+          "status_atendimento": StatusAt
         }
       }
 
@@ -425,7 +427,7 @@ export default function Infos() {
 
                     return (
                       <>
-                        <tr key={i.id} style={{backgroundColor: isHovered && ItenIndex == IndexLista ? '#ffffff40' : 'transparent', cursor: 'pointer', transition: 'background-color 0.2s'}} onMouseEnter={() => handleMouseEnter(index)} onMouseLeave={handleMouseLeave} onClick={() => router.push(`/negocios/${i.id}`)}>
+                        <tr key={i.id} style={{ backgroundColor: isHovered && ItenIndex == IndexLista ? '#ffffff40' : 'transparent', cursor: 'pointer', transition: 'background-color 0.2s' }} onMouseEnter={() => handleMouseEnter(index)} onMouseLeave={handleMouseLeave} onClick={() => router.push(`/negocios/${i.id}`)}>
                           <td style={{ textAlign: 'center', color: color }}>{index + 1}</td>
                           <td style={{ textAlign: 'center', color: color }}>{andamento}</td>
                           <td style={{ textAlign: 'center', color: color }}>{Status}</td>
@@ -575,6 +577,21 @@ export default function Infos() {
                     />
                   </Box>
                 </FormControl>
+
+                <FormControl as={GridItem} colSpan={12}>
+                  <Heading as={GridItem} colSpan={12} size="sd">
+                    Status de Contato
+                  </Heading>
+                  <Box as={GridItem} colSpan={12} >
+                    <Switch
+                      colorScheme='red'
+                      size='sm'
+                      isChecked={StatusAt}
+                      onChange={(e) => setStatusAt(e.target.checked)}
+                    />
+                  </Box>
+                </FormControl>
+
                 <FormControl as={GridItem} colSpan={12}>
                   <Flex w={'100%'} alignItems={'flex-end'} justifyContent={'space-between'}>
                     <Box>

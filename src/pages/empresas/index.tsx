@@ -31,7 +31,9 @@ export const getServerSideProps: GetServerSideProps<{ dataRetorno: any }> = asyn
     const diferencaEmDias = calcularDiferencaEmDias(dataAtual, proximaData);
 
     let RetornoInteracao;
-    if (diferencaEmDias === 0) {
+    if(ultimaInteracao.attributes.status_atendimento === false) {
+      RetornoInteracao = { proxima: null, cor: 'gray', info: 'Você não tem interação agendada' }
+    } else if (diferencaEmDias === 0) {
       RetornoInteracao = { proxima: proximaData.toISOString(), cor: 'yellow', info: 'Você tem interação agendada para hoje' };
     } else if (diferencaEmDias < 0) {
       RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#FC0707', info: `Você tem interação que já passou, a data agendada era ${proximaData.toLocaleDateString()}` };
@@ -73,17 +75,14 @@ export const getServerSideProps: GetServerSideProps<{ dataRetorno: any }> = asyn
 
   const SemVendedorInteracaoMap = SemVendedorInteracao.map((i: any) => {
     const interacao = i.attributes.interacaos.data;
-    const FilterDateNull = interacao.filter((n: any) => n.attributes.proxima === null);
-
     const ultimaInteracao = interacao[interacao.length - 1];
     const proximaData = startOfDay(parseISO(ultimaInteracao.attributes.proxima));
     const diferencaEmDias = calcularDiferencaEmDias(dataAtual, proximaData);
 
     let RetornoInteracao;
-    // if(FilterDateNull) {
-    //   RetornoInteracao = { proxima: null, cor: 'gray', info: 'Você não tem interação agendada' }
-    // }
-    if (diferencaEmDias === 0) {
+    if(ultimaInteracao.attributes.status_atendimento === false) {
+      RetornoInteracao = { proxima: null, cor: 'gray', info: 'Você não tem interação agendada' }
+    } else if (diferencaEmDias === 0) {
       RetornoInteracao = { proxima: proximaData.toISOString(), cor: 'yellow', info: 'Você tem interação agendada para hoje' };
     } else if (diferencaEmDias < 0) {
       RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#FC0707', info: `Você tem interação que já passou, a data agendada era ${proximaData.toLocaleDateString()}` };
@@ -154,8 +153,6 @@ function Empresas({dataRetorno}: any) {
         <Box display={'flex'} flexDirection={{ base: 'column', lg: 'row' }} w={'100%'} h={'76%'} pt={5} gap={5} >
           <CarteiraVendedor filtro={DataSearchUser} />
           <CarteiraAusente filtro={DataSearch} />
-          {/* <pre>{JSON.stringify(DataSearchUser, null, 2)}</pre>
-          <pre>{JSON.stringify(DataSearch, null, 2)}</pre> */}
         </Box>
       </Box>
     </>

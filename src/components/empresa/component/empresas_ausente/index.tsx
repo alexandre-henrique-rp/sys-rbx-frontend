@@ -25,7 +25,6 @@ export const CarteiraAusente = (props: { filtro: any }) => {
     const negocio = i.attributes.businesses.data.length > 0 ? i.attributes.businesses.data : []
 
     const iconeTest = negocio.filter((n: any) => {
-      console.log(n)
       if (n.attributes.andamento === 3 && n.attributes.etapa !== 6 && n.attributes.vendedor_name == session?.user?.name) {
         return true
       } else {
