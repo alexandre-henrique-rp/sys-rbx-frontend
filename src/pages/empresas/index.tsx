@@ -92,17 +92,23 @@ function Empresas({ dataRetorno }: any) {
           const proximaData = startOfDay(parseISO(ultimaInteracao.attributes.proxima));
           const diferencaEmDias = calcularDiferencaEmDias(dataAtual, proximaData);
 
+          let DifDias;
           let RetornoInteracao;
           if (ultimaInteracao.attributes.status_atendimento === false && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
-            RetornoInteracao = { proxima: addDays(dataAtual, 30), cor: 'gray', info: 'Você não tem interação agendada' }
+            RetornoInteracao = { proxima: null, cor: 'gray', info: 'Você não tem interação agendada' }
+            DifDias = 40
           } else if (diferencaEmDias === 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
             RetornoInteracao = { proxima: proximaData.toISOString(), cor: 'yellow', info: 'Você tem interação agendada para hoje' };
+            DifDias = diferencaEmDias
           } else if (diferencaEmDias < 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
             RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#FC0707', info: `Você tem interação que já passou, a data agendada era ${proximaData.toLocaleDateString()}` };
+            DifDias = diferencaEmDias
           } else if (diferencaEmDias > 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
             RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#3B2DFF', info: `Você tem interação agendada para ${proximaData.toLocaleDateString()}` };
+            DifDias = diferencaEmDias
           } else {
             RetornoInteracao = { proxima: null, cor: 'transparent', info: "" };
+            DifDias = 0
           }
 
           return {
@@ -117,7 +123,7 @@ function Empresas({ dataRetorno }: any) {
                   info: RetornoInteracao?.info,
                 }
               },
-              diferencaEmDias: diferencaEmDias // Adicione a diferença de dias como uma propriedade
+              diferencaEmDias: DifDias  // Adicione a diferença de dias como uma propriedade
             }
           };
         });
@@ -162,7 +168,7 @@ function Empresas({ dataRetorno }: any) {
     const PesquisaTotal = PesqisaArrayTotal.filter((f: any) => f.attributes.user.data?.attributes.username !== session?.user.name && f.attributes.user.data !== null);
     console.log("🚀 ~ file: index.tsx:160 ~ filterEmpresa ~ PesquisaTotal:", PesquisaTotal)
     if (PesquisaTotal.length > 0) {
-     PesquisaTotal.map((i: any) => {
+      PesquisaTotal.map((i: any) => {
         const vendedor = i.attributes.user.data?.attributes.username
         toast({
           title: 'Opss',
