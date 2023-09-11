@@ -23,8 +23,8 @@ const Vendedor: React.FC = ({ repo }: any) => {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/db/user/getGeral');
-        const repo = await res.json();
+        const res = await axios('http://localhost:3000/api/db/user/getGeral');
+        const repo = res.data;
         setData(repo);
       } catch (error) {
         console.log(error);
