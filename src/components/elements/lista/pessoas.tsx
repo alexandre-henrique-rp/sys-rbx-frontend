@@ -1,5 +1,5 @@
 import { capitalizeWords } from '@/function/captalize';
-import { Box, Button, Flex, FormControl, FormLabel, GridItem, Heading, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, chakra, SimpleGrid, Textarea, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, Flex, FormControl, FormLabel, GridItem, Heading, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, SimpleGrid, Textarea, useDisclosure } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { PessoasData } from './pessoasdata';
 import { useSession } from 'next-auth/react';

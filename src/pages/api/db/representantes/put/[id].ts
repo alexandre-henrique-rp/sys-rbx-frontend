@@ -1,4 +1,3 @@
-import { LogEmpresa } from '@/pages/api/lib/logEmpresa';
 import axios from 'axios';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -36,7 +35,7 @@ export default async function GetEmpresa(
         });
       });
 
-     
+
 
   } else {
     return res.status(405).send({ message: 'Only PUT requests are allowed' });

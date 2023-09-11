@@ -1,5 +1,3 @@
-/* eslint-disable react/no-children-prop */
-import { SetValue } from "@/function/currenteValor";
 import {
   Button,
   ButtonGroup,
