@@ -95,7 +95,7 @@ export default async function PostEmpresa(
           console.log("php", Response.data);
         })
         .catch(function (error) {
-          console.log("php", error);
+          console.log("php erro", error);
         });
 
       res.status(200).json(response.data);

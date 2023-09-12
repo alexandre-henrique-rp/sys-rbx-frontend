@@ -24,8 +24,9 @@ export const LogEmpresa = async (
         "Content-Type": "application/json",
       },
     });
-    
-    const atributes = dados.data.attributes;
+
+    const atributes = !!dados.data.attributes ? dados.data.attributes : dados.data;
+    console.log("🚀 ~ file: logEmpresa.ts:29 ~ atributes:", atributes)
 
     const DobyData = {
       data: {

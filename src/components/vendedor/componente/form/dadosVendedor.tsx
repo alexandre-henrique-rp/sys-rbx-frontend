@@ -49,7 +49,7 @@ export const DadosVendedor = (props: { id: any }) => {
         confirmed: Status == 'true'? true : false
       };
 
-      const request = await axios(`src/pages/api/db/user/put/${IDVendedor}`, {
+      const request = await axios(`/api/db/user/put/${IDVendedor}`, {
         method: 'PUT',
         data: Data
       });
@@ -63,11 +63,12 @@ export const DadosVendedor = (props: { id: any }) => {
         isClosable: true
       });
       setBloq(false);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log(error.response.data? JSON.stringify(error.response.data) : JSON.stringify(error));
+      console.log(error.response.data.message);
       toast({
         title: 'Erro',
-        description: 'Erro ao cadastrar usuario,' + JSON.stringify(error),
+        description: `Erro ao cadastrar usuario, ${error.response.data.message}`,
         status: 'error',
         duration: 9000,
         isClosable: true
@@ -177,7 +178,6 @@ export const DadosVendedor = (props: { id: any }) => {
 
         <Flex gap={4} justifyContent={'end'}>
           <Button colorScheme="green" isDisabled={Bloq} onClick={salvar}>Salvar</Button>
-          <Button colorScheme="red">Excluir</Button>
         </Flex>
 
       </Flex>

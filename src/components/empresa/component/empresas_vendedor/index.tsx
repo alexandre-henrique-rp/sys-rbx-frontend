@@ -21,6 +21,7 @@ export const CarteiraVendedor = (props: {filtro: any }) => {
 
 
   const BodyTabela = !!Data && Data.map((i: any) => {
+  console.log("🚀 ~ file: index.tsx:24 ~ BodyTabela ~ i:", i)
 
     const negocio = i.attributes.businesses.data.length > 0 ? i.attributes.businesses.data : []
 

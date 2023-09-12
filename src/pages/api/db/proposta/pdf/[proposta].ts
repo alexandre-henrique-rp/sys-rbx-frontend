@@ -86,6 +86,15 @@ export default async function GetEmpresa(
     const imageContent = fs.readFileSync(imagePath).toString("base64");
     const dataUrl = `data:image/jpeg;base64,${imageContent}`;
 
+    function verificarString(str: any) {
+      // Verifica se a string contém as palavras com diferentes variações de maiúsculas/minúsculas
+      if (str.match(/\b(?:Dias|dias|Dia|dia)\b/)) {
+        return str; // Se a palavra for encontrada, retorna a string original
+      } else {
+        return str + " Dias"; // Se a palavra não for encontrada, retorna a string com " Dias" adicionado
+      }
+    }
+
     const date = new Date().toLocaleDateString("pt-BR");
     const fonts = {
       Helvetica: {
@@ -533,7 +542,7 @@ export default async function GetEmpresa(
                                 {
                                   margin: [0, 5, 0, 0],
                                   border: [false, false, false, false],
-                                  text: infos.condi === 'Antecipado' || infos.condi === 'Antecipado' ? null: infos.prazo,
+                                  text: infos.condi === 'Antecipado' || infos.condi === 'Antecipado' ? null: verificarString(infos.prazo),
                                   style: "clienteFornecedor",
                                 },
                               ],

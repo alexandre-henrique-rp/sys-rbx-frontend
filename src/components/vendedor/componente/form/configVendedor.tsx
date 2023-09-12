@@ -1,10 +1,10 @@
-import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, useToast } from "@chakra-ui/react"
+import { Box, Button, Flex, FormControl, FormLabel, Heading, Input, useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 
-export const ConfigVendedor = (props: { id: any }) => {
+export const ConfigVendedor = (props: { id: any, update: any }) => {
   const IDVendedor = props.id
   const toast = useToast();
   const [ID, setID] = useState('');
@@ -24,42 +24,46 @@ export const ConfigVendedor = (props: { id: any }) => {
   const [ComicaoVe, setComicaoVe] = useState('');
   const [EntradaCont, setEntradaCont] = useState('');
   const [ComicaoCont, setComicaoCont] = useState('');
-  const {data: session} = useSession();
+const {data: session} = useSession()
   const [Bloq, setBloq] = useState(false);
-
+  const [Vendedor, setVendedor] = useState<any|null>([]);
 
 
   useEffect(() => {
     (async () => {
       try {
-        const request = await axios(`/api/db/config/getid/${IDVendedor}`);
-        const retorno = request.data;
-        const resposta = retorno[retorno.length - 1];
-        console.log('config',resposta);
-        setID(resposta.id);
-        setAno(resposta.attributes.ano);
-        setMes(resposta.attributes.mes);
-        setMeta(resposta.attributes.meta_decendio);
-        setSalario(resposta.attributes.salario_fixo);
-        setCusto(resposta.attributes.ajuda_de_custo);
-        setPremio1(resposta.attributes.premio_decendio_1);
-        setPremio2(resposta.attributes.premio_decendio_2);
-        setPremio3(resposta.attributes.premio_decendio_3);
-        setPremioMeta(resposta.attributes.premio_meta_do_mes);
-        setPremioRecord(resposta.attributes.premio_recorde_de_vendas);
-        setEntradaAt(resposta.attributes.entradas_atendimento);
-        setComicaoAt(resposta.attributes.comisao_atendimento);
-        setEntradaVe(resposta.attributes.entradas_venda);
-        setComicaoVe(resposta.attributes.comissao_venda);
-        setEntradaCont(resposta.attributes.entradas_contas);
-        setComicaoCont(resposta.attributes.comissao_conta);
+        const GetVendedor = await axios(`/api/db/user/getId/${IDVendedor}`);
+        const vendedor = GetVendedor.data;
+        setVendedor(vendedor)
       } catch (error) {
         console.log(error);
       }
     })();
   }, [IDVendedor]);
 
+  function stringParaNumero(string: string) {
+    // Substitui vírgulas por pontos
+    const stringComPonto = string.replace(",", ".");
+    // Tenta analisar como número de ponto flutuante
+    const numeroFloat = parseFloat(stringComPonto);
+    // Se o resultado for um número válido, retorna o número de ponto flutuante
+    if (!isNaN(numeroFloat)) {
+      return numeroFloat;
+    }
+    // Se não for um número de ponto flutuante, tenta analisar como número inteiro
+    const numeroInt = parseInt(stringComPonto, 10);
+    // Se o resultado for um número inteiro válido, retorna o número inteiro
+    if (!isNaN(numeroInt)) {
+      return numeroInt;
+    }
+    return NaN;
+  }
 
+  function numeroParaString(numero: any) {
+    return `${numero}`;
+  }
+
+  console.log("🚀 ~ file: configVendedor.tsx:78 ~ sal ~ Ano:", Ano)
   const salvar = async () => {
     setBloq(true);
     try {
@@ -81,18 +85,19 @@ export const ConfigVendedor = (props: { id: any }) => {
           "comissao_venda": ComicaoVe,
           "entradas_contas": EntradaCont,
           "comissao_conta": ComicaoCont,
-          "vendedor": session?.user.name,
-          "user": session?.user.id,
+          "vendedor": Vendedor.name,
+          "user": Vendedor.id,
         }
       };
 
-      const request = await axios(`/api/db/config/put/${ID}`, {
-        method: 'PUT',
+      const request = await axios(`/api/db/config/post`, {
+        method: 'POST',
         data: Data
       });
 
       const resposta = request.data;
       console.log(resposta);
+      props.update(true)
       toast({
         title: 'Salvo com sucesso',
         status: 'success',
@@ -100,6 +105,11 @@ export const ConfigVendedor = (props: { id: any }) => {
         isClosable: true
       });
       setBloq(false);
+      reset();
+      setTimeout(() => {
+        props.update(false)
+      }, 3000);
+
     } catch (error) {
       console.log(error);
       toast({
@@ -112,6 +122,26 @@ export const ConfigVendedor = (props: { id: any }) => {
       setBloq(false);
     }
   }
+
+  const reset = () => {
+    setAno('');
+    setMes('');
+    setMeta('');
+    setSalario('');
+    setCusto('');
+    setPremio1('');
+    setPremio2('');
+    setPremio3('');
+    setPremioMeta('');
+    setPremioRecord('');
+    setEntradaAt('');
+    setComicaoAt('');
+    setEntradaVe('');
+    setComicaoVe('');
+    setEntradaCont('');
+    setComicaoCont('');
+  }
+
 
   return (
     <>
@@ -134,8 +164,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={Ano}
-                onChange={(e) => setAno(e.target.value)}
+                type="number"
+                value={stringParaNumero(Ano)}
+                onChange={(e) => setAno(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -151,8 +182,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={Mes}
-                onChange={(e) => setMes(e.target.value)}
+                type="number"
+                value={stringParaNumero(Mes)}
+                onChange={(e) => setMes(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -168,8 +200,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={Meta}
-                onChange={(e) => setMeta(e.target.value)}
+                type="number"
+                value={stringParaNumero(Meta)}
+                onChange={(e) => setMeta(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -185,8 +218,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={Salario}
-                onChange={(e) => setSalario(e.target.value)}
+                type="number"
+                value={stringParaNumero(Salario)}
+                onChange={(e) => setSalario(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -202,8 +236,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={Custo}
-                onChange={(e) => setCusto(e.target.value)}
+                type="number"
+                value={stringParaNumero(Custo)}
+                onChange={(e) => setCusto(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -219,8 +254,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={Premio1}
-                onChange={(e) => setPremio1(e.target.value)}
+                type="number"
+                value={stringParaNumero(Premio1)}
+                onChange={(e) => setPremio1(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -236,8 +272,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={Premio2}
-                onChange={(e) => setPremio2(e.target.value)}
+                type="number"
+                value={stringParaNumero(Premio2)}
+                onChange={(e) => setPremio2(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -253,8 +290,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={Premio3}
-                onChange={(e) => setPremio3(e.target.value)}
+                type="number"
+                value={stringParaNumero(Premio3)}
+                onChange={(e) => setPremio3(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -270,8 +308,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={PremioMeta}
-                onChange={(e) => setPremioMeta(e.target.value)}
+                type="number"
+                value={stringParaNumero(PremioMeta)}
+                onChange={(e) => setPremioMeta(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -287,8 +326,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={PremioRecord}
-                onChange={(e) => setPremioRecord(e.target.value)}
+                type="number"
+                value={stringParaNumero(PremioRecord)}
+                onChange={(e) => setPremioRecord(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -304,8 +344,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={EntradaAt}
-                onChange={(e) => setEntradaAt(e.target.value)}
+                type="number"
+                value={stringParaNumero(EntradaAt)}
+                onChange={(e) => setEntradaAt(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -321,8 +362,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={ComicaoAt}
-                onChange={(e) => setComicaoAt(e.target.value)}
+                type="number"
+                value={stringParaNumero(ComicaoAt)}
+                onChange={(e) => setComicaoAt(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -338,8 +380,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={EntradaVe}
-                onChange={(e) => setEntradaVe(e.target.value)}
+                type="number"
+                value={stringParaNumero(EntradaVe)}
+                onChange={(e) => setEntradaVe(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -355,8 +398,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={ComicaoVe}
-                onChange={(e) =>  setComicaoVe(e.target.value)}
+                type="number"
+                value={stringParaNumero(ComicaoVe)}
+                onChange={(e) => setComicaoVe(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -372,8 +416,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={EntradaCont}
-                onChange={(e) => setEntradaCont(e.target.value)}
+                type="number"
+                value={stringParaNumero(EntradaCont)}
+                onChange={(e) => setEntradaCont(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -389,8 +434,9 @@ export const ConfigVendedor = (props: { id: any }) => {
                 w="full"
                 fontSize="xs"
                 rounded="md"
-                value={ComicaoCont}
-                onChange={(e) => setComicaoCont(e.target.value)}
+                type="number"
+                value={stringParaNumero(ComicaoCont)}
+                onChange={(e) => setComicaoCont(numeroParaString(e.target.value))}
               />
             </FormControl>
           </Box>
@@ -399,7 +445,6 @@ export const ConfigVendedor = (props: { id: any }) => {
 
         <Flex gap={4} justifyContent={'end'}>
           <Button colorScheme="green" isDisabled={Bloq} onClick={salvar}>Salvar</Button>
-          <Button colorScheme="red">Excluir</Button>
         </Flex>
       </Flex>
     </>

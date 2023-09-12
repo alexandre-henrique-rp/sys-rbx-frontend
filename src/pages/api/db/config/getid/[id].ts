@@ -17,7 +17,7 @@ export default async function PostUser(
           "Content-Type": "application/json",
         },
       });
-      const [resposta] = Response.data.data
+      const resposta = Response.data.data
       res.status(200).json(resposta);
     } catch (error: any) {
       res.status(400).json(error.response.data?.error);

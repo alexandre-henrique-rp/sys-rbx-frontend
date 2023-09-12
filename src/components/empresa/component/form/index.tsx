@@ -295,8 +295,8 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
         engResi: engResi,
         modEsp: modEsp,
         tablecalc: tablecalc,
-        maxPg: maxPg,
-        forpg: forpg,
+        maxPg: ENVIO === 'POST' ? '0' : maxPg,
+        forpg: ENVIO === 'POST' ? 'Antecipado' : forpg,
         frete: frete,
         contribuinte: contribuinte,
         representantes: Responsavel,
@@ -355,7 +355,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
   };
 
   const resetData = (data: any) => {
-  console.log("🚀 ~ file: index.tsx:358 ~ resetData ~ data:", data)
+    console.log("🚀 ~ file: index.tsx:358 ~ resetData ~ data:", data)
 
     setNome(data.attributes.dados.data.nome);
     setFantasia(data.attributes.dados.data.fantasia);
@@ -444,6 +444,11 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
     setForpg(Formapg)
   }
 
+  console.log(session?.user.pemission !== 'Adm' && ENVIO === 'PUT' ? true : false)
+  console.log(ENVIO === 'PUT')
+  console.log(ENVIO)
+  console.log(session?.user.pemission !== 'Adm' )
+
   return (
     <>
       <Box
@@ -522,7 +527,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                         rounded="md"
                         onChange={maskCnpj}
                         value={MaskCNPJ}
-                        isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'PUT'}
+                        isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'UPDATE' ? true : false}
                       />
                     </FormControl>
                     <Button
@@ -531,7 +536,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                       h={8}
                       mt={5}
                       colorScheme="messenger"
-                      isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'PUT'}
+                      isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'UPDATE'? true: false}
                       onClick={consulta}
                     >
                       Buscar dados
@@ -542,7 +547,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                         borderColor="gray.900"
                         rounded="md"
                         isChecked={status}
-                        isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'PUT'}
+                        isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'UPDATE'? true: false}
                         onChange={(e) => setStatus(e.target.checked)}
                       />
                     </Box>
@@ -572,7 +577,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                             rounded="md"
                             onChange={(e) => setNome(capitalizeWords(e.target.value))}
                             value={nome}
-                            isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'PUT'}
+                            isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'UPDATE'? true: false}
                           />
                         </FormControl>
                         <FormControl as={GridItem} colSpan={[5, 2]}>

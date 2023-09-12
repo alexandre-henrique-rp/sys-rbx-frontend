@@ -42,20 +42,21 @@ export const encontrarObjetoMaisProximoComCor = (dados: any[], user: string): {
 }  => {
   const dataAtual = startOfDay(new Date()); // Zera o horário da data atual
 
-  if (dados.some((i: any) => !i.attributes.status_atendimento)) {
-    return { data: null, cor: "gray", info: "Você não tem interação agendada" };
-  }
+  // if (dados.some((i: any) => !i.attributes.status_atendimento)) {
+  //   return { data: null, cor: "gray", info: "Você não tem interação agendada" };
+  // }
 
   const objetoMaisProximo = dados.slice(-1)[0];
 
-  if (objetoMaisProximo?.attributes.status_atendimento === false && objetoMaisProximo.attributes.vendedor_name === user) {
+  if (objetoMaisProximo?.attributes.status_atendimento === false ) {
     return {
-      data: addDays(dataAtual, 30),
+      data: addDays(dataAtual, 500),
       cor: "gray",
       info: "Você não tem interação agendada",
     };
   }else {
-    const proximaData = startOfDay(parseISO(objetoMaisProximo.attributes.proxima)); // Converte a string para um objeto Date e zera o horário
+
+    const proximaData = startOfDay(parseISO(objetoMaisProximo?.attributes.proxima)); // Converte a string para um objeto Date e zera o horário
     const diferencaEmDias = calcularDiferencaEmDias(dataAtual, proximaData); // Calcula a diferença em dias
 
     if (diferencaEmDias === 0 && objetoMaisProximo.attributes.vendedor_name === user) {

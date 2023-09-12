@@ -61,20 +61,9 @@ const Vendedor: React.FC = ({ repo }: any) => {
         isClosable: true,
       });
 
-      const data2 = {
-        "data": {
-          "vendedor": data.username,
-          "user": data.id,
-        }
-      }
-
-      const salve2 = await axios.post('/api/db/config/post', data2);
-      console.log(salve2.data);
       const ResponseLista = await axios.get('/api/db/user/getGeral');
       setData(ResponseLista.data);
-      
       setBloq(false);
-
     } catch (error) {
       console.log(error);
       onClose();
