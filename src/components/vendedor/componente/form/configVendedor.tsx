@@ -33,7 +33,8 @@ export const ConfigVendedor = (props: { id: any }) => {
     (async () => {
       try {
         const request = await axios(`/api/db/config/getid/${IDVendedor}`);
-        const resposta = request.data;
+        const retorno = request.data;
+        const resposta = retorno[retorno.length - 1];
         console.log('config',resposta);
         setID(resposta.id);
         setAno(resposta.attributes.ano);
@@ -50,7 +51,7 @@ export const ConfigVendedor = (props: { id: any }) => {
         setComicaoAt(resposta.attributes.comisao_atendimento);
         setEntradaVe(resposta.attributes.entradas_venda);
         setComicaoVe(resposta.attributes.comissao_venda);
-        setEntradaCont(resposta.attributes.entradaCont);
+        setEntradaCont(resposta.attributes.entradas_contas);
         setComicaoCont(resposta.attributes.comissao_conta);
       } catch (error) {
         console.log(error);
