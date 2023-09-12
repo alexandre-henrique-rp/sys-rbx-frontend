@@ -26,6 +26,20 @@ function formatarTelefone(telefone: any) {
   }
 }
 
+function verificarString(str: any) {
+  // Check if the string contains the words with different variations of uppercase/lowercase
+  const wordRegex = /\b(?:Dias|dias|Dia|dia)\b/;
+  const hasWord = wordRegex.test(str);
+
+  // If the word is found, return the original string
+  if (hasWord) {
+    return str;
+  }
+
+  // If the word is not found, append " Dias" to the string
+  return str + " Dias";
+}
+
 export default async function GetEmpresa(
   req: NextApiRequest,
   res: NextApiResponse
@@ -86,14 +100,7 @@ export default async function GetEmpresa(
     const imageContent = fs.readFileSync(imagePath).toString("base64");
     const dataUrl = `data:image/jpeg;base64,${imageContent}`;
 
-    function verificarString(str: any) {
-      // Verifica se a string contém as palavras com diferentes variações de maiúsculas/minúsculas
-      if (str.match(/\b(?:Dias|dias|Dia|dia)\b/)) {
-        return str; // Se a palavra for encontrada, retorna a string original
-      } else {
-        return str + " Dias"; // Se a palavra não for encontrada, retorna a string com " Dias" adicionado
-      }
-    }
+
 
     const date = new Date().toLocaleDateString("pt-BR");
     const fonts = {
