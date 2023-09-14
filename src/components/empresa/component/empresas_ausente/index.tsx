@@ -35,57 +35,57 @@ export const CarteiraAusente = (props: { filtro: any }) => {
     const interacao = i.attributes.interacaos.data
 
     return (
+      <>
+        <tr key={i.id} style={{ borderBottom: '1px solid #ffff', cursor: 'pointer' }} onClick={() => router.push(`/empresas/CNPJ/${i.id}`)}>
+          <td style={{ padding: '0.3rem 1.2rem' }}>{i.attributes.nome}</td>
+          <td style={{ padding: '0.3rem 1.2rem' }}>{!!interacao && (
+            <Flex w={'100%'} justifyContent={'center'}>
+              {i.attributes.interacaos.data.length === 0 ? null : (<HiChatBubbleLeftRight color={!interacao.cor? '#1A202C' : interacao.cor} fontSize={'1.5rem'} />)}
+            </Flex>
+          )}</td>
+          <td style={{ padding: '0.3rem 1.2rem' }}>{iconeTest.length > 0 && (
+            <Flex w={'100%'} justifyContent={'center'}>
+              <FaMoneyBillAlt color={'green'} fontSize={'1.5rem'} />
+            </Flex>
+          )}</td>
+        </tr>
+      </>
+    )
+  })
+
+  const Reload = (
+    <Flex w={{ base: '100%', lg: '50%' }} mx={'60%'}>
+      <Box>
+        <Loading mt='-18vh' size="110px">Carregando...</Loading>
+      </Box>
+    </Flex>
+  )
+
+  return (
     <>
-      <tr key={i.id} style={{ borderBottom: '1px solid #ffff', cursor: 'pointer' }} onClick={() => router.push(`/empresas/CNPJ/${i.id}`)}>
-        <td style={{ padding: '0.3rem 1.2rem' }}>{i.attributes.nome}</td>
-        <td style={{ padding: '0.3rem 1.2rem' }}>{!!interacao && (
-          <Flex w={'100%'} justifyContent={'center'}>
-            {i.attributes.interacaos.data.length === 0 ? null : (<HiChatBubbleLeftRight color={interacao.cor} fontSize={'1.5rem'} />)}
-          </Flex>
-        )}</td>
-        <td style={{ padding: '0.3rem 1.2rem' }}>{iconeTest.length > 0 && (
-          <Flex w={'100%'} justifyContent={'center'}>
-            <FaMoneyBillAlt color={'green'} fontSize={'1.5rem'} />
-          </Flex>
-        )}</td>
-      </tr>
+      <Box color={'white'} w={{ base: '100%', lg: '50%' }}>
+        <Heading size={'lg'}>Empresas sem carteira definida</Heading>
+        <Box
+          mt={5}
+          maxH={{ base: '23rem', lg: '90%' }}
+          pe={3}
+          overflow={'auto'}
+        >
+          <table style={{ width: '100%' }}>
+            <thead>
+              <tr style={{ background: '#ffffff12', borderBottom: '1px solid #ffff' }}>
+                <th style={{ padding: '0.6rem 1.2rem', textAlign: 'start', width: '45%' }}>Nome</th>
+                <th style={{ padding: '0.6rem 1.2rem', textAlign: 'start', width: '6%' }}>Interações</th>
+                <th style={{ padding: '0.6rem 1.2rem', textAlign: 'start', width: '6%' }}>Negocios</th>
+              </tr>
+            </thead>
+            <tbody>
+              {!!Data && BodyTabela}
+              {!Data && Reload}
+            </tbody>
+          </table>
+        </Box>
+      </Box>
     </>
   )
-})
-
-const Reload = (
-  <Flex w={{ base: '100%', lg: '50%' }} mx={'60%'}>
-    <Box>
-      <Loading mt='-18vh' size="110px">Carregando...</Loading>
-    </Box>
-  </Flex>
-)
-
-return (
-  <>
-    <Box color={'white'} w={{ base: '100%', lg: '50%' }}>
-      <Heading size={'lg'}>Empresas sem carteira definida</Heading>
-      <Box
-        mt={5}
-        maxH={{ base: '23rem', lg: '90%' }}
-        pe={3}
-        overflow={'auto'}
-      >
-        <table style={{ width: '100%' }}>
-          <thead>
-            <tr style={{ background: '#ffffff12', borderBottom: '1px solid #ffff' }}>
-              <th style={{ padding: '0.6rem 1.2rem', textAlign: 'start', width: '45%' }}>Nome</th>
-              <th style={{ padding: '0.6rem 1.2rem', textAlign: 'start', width: '6%' }}>Interações</th>
-              <th style={{ padding: '0.6rem 1.2rem', textAlign: 'start', width: '6%' }}>Negocios</th>
-            </tr>
-          </thead>
-          <tbody>
-            {!!Data && BodyTabela}
-            {!Data && Reload}
-          </tbody>
-        </table>
-      </Box>
-    </Box>
-  </>
-)
 }

@@ -105,17 +105,15 @@ const Vendedor: React.FC = ({ repo }: any) => {
               <Table size='sm'>
                 <Thead bg='#ffffff12' h={5}>
                   <Tr>
-                    <Th color={'white'}>#</Th>
                     <Th color={'white'}>Vendedor</Th>
                     <Th color={'white'}>status</Th>
                   </Tr>
                 </Thead>
                 <Tbody>
                   {Data.map((item: any, x: number) => {
-                    const confirmed = item.confirmed ? 'Ativo' : 'Bloqueado';
+                    const confirmed = item.confirmed ? 'ATIVO' : 'INATIVO';
                     return (
                       <Tr key={item.id} cursor={'pointer'} onClick={() => router.push(`/vendedor/${item.id}`)}>
-                        <Td>{x}</Td>
                         <Td>{item.username}</Td>
                         <Td>{confirmed}</Td>
                       </Tr>

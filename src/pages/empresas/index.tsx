@@ -10,6 +10,8 @@ import { useEffect, useState } from "react";
 
 
 
+
+
 function Empresas({ dataRetorno }: any) {
   const router = useRouter();
   const { data: session } = useSession();
@@ -27,6 +29,7 @@ function Empresas({ dataRetorno }: any) {
       try {
         const res = await axios('/api/db/empresas/empresalist');
         const repo = res.data;
+
         setDados(repo)
         setDataTotal(repo);
       } catch (error) {
@@ -45,52 +48,43 @@ function Empresas({ dataRetorno }: any) {
   }, [session?.user.name, toast])
 
   useEffect(() => {
-    (async () => {
-      const calcularDiferencaEmDias = (data1: Date, data2: Date): number => {
-        const umDiaEmMilissegundos = 24 * 60 * 60 * 1000;
-        const data1UTC = Date.UTC(data1.getFullYear(), data1.getMonth(), data1.getDate());
-        const data2UTC = Date.UTC(data2.getFullYear(), data2.getMonth(), data2.getDate());
-        return Math.floor((data2UTC - data1UTC) / umDiaEmMilissegundos);
-      };
+    const calcularDiferencaEmDias = (data1: Date, data2: Date): number => {
+      const umDiaEmMilissegundos = 24 * 60 * 60 * 1000;
+      const data1UTC = Date.UTC(data1.getFullYear(), data1.getMonth(), data1.getDate());
+      const data2UTC = Date.UTC(data2.getFullYear(), data2.getMonth(), data2.getDate());
+      return Math.floor((data2UTC - data1UTC) / umDiaEmMilissegundos);
+    };
 
-      const dataAtual = startOfDay(new Date());
+    // Função para processar interações de vendedores
+    const processarVendedorInteracoes = (dataAtual: Date, Dados: any) => {
       const filtroVendedor = Dados.filter((f: any) => f.attributes.user.data?.attributes.username === session?.user.name);
-      const verifiqueVendedor = filtroVendedor.map((i: any) => {
-        const interacoes = i.attributes.interacaos.data;
-        const filterInteracoes = interacoes.filter((i: any) => {
-          return i.attributes.vendedor_name === session?.user.name
-        })
-        return {
-          ...i, attributes: {
-            ...i.attributes,
-            interacaos: {
-              data: filterInteracoes
-            }
-          }
-        };
-      })
-      const VendedorInteracao = verifiqueVendedor.filter((f: any) => f.attributes.interacaos.data?.length > 0)
 
-      const VendedorInteracaoMap = VendedorInteracao.map((i: any) => {
-        const interacao = i.attributes.interacaos.data;
-        const ultimaInteracao = interacao[interacao.length - 1];
+      const VendedorInteracaoMap = filtroVendedor.map((i: any) => {
+        const interacoes = i.attributes.interacaos.data;
+        const interacoesVendedor = interacoes.filter((interacao: any) => interacao.attributes.vendedor_name === session?.user.name);
+        const ultimaInteracao = interacoesVendedor[interacoesVendedor.length - 1];
+
+        if (!ultimaInteracao) {
+          return null;
+        }
+
         const proximaData = startOfDay(parseISO(ultimaInteracao.attributes.proxima));
         const diferencaEmDias = calcularDiferencaEmDias(dataAtual, proximaData);
 
         let DifDias;
         let RetornoInteracao;
-        if (ultimaInteracao.attributes.status_atendimento === false && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
-          RetornoInteracao = { proxima: null, cor: 'gray', info: 'Você não tem interação agendada' }
-          DifDias = 500
-        } else if (diferencaEmDias === 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
+        if (ultimaInteracao.attributes.status_atendimento === false) {
+          RetornoInteracao = { proxima: null, cor: 'gray', info: 'Você não tem interação agendada' };
+          DifDias = 500;
+        } else if (diferencaEmDias === 0) {
           RetornoInteracao = { proxima: proximaData.toISOString(), cor: 'yellow', info: 'Você tem interação agendada para hoje' };
-          DifDias = diferencaEmDias
-        } else if (diferencaEmDias < 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
+          DifDias = diferencaEmDias;
+        } else if (diferencaEmDias < 0) {
           RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#FC0707', info: `Você tem interação que já passou, a data agendada era ${proximaData.toLocaleDateString()}` };
-          DifDias = diferencaEmDias
-        } else if (diferencaEmDias > 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
+          DifDias = diferencaEmDias;
+        } else {
           RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#3B2DFF', info: `Você tem interação agendada para ${proximaData.toLocaleDateString()}` };
-          DifDias = diferencaEmDias
+          DifDias = diferencaEmDias;
         }
 
         return {
@@ -103,67 +97,63 @@ function Empresas({ dataRetorno }: any) {
                 proxima: RetornoInteracao?.proxima,
                 cor: RetornoInteracao?.cor,
                 info: RetornoInteracao?.info,
-              }
+              },
             },
-            diferencaEmDias: DifDias // Adicione a diferença de dias como uma propriedade
-          }
+            diferencaEmDias: DifDias, // Adicione a diferença de dias como uma propriedade
+          },
         };
-      });
+      }).filter(Boolean);
 
       VendedorInteracaoMap.sort((a: any, b: any) => {
         return a.attributes.diferencaEmDias - b.attributes.diferencaEmDias;
       });
+
       const VendedorInteracao0 = filtroVendedor.filter((f: any) => f.attributes.interacaos.data?.length === 0);
       const DataVendedor: any = [...VendedorInteracaoMap, ...VendedorInteracao0];
 
-      // ------------------------------------------------------------------------------------------------------------------
-      // sem vendedor
+      return DataVendedor;
+    };
 
-      const filtroSemVendedor = Dados.filter((f: any) => {
+    // Função para processar interações sem vendedor
+    const processarSemVendedorInteracoes = (dataAtual: Date, Dados: any) => {
+      const filtroSemVendedor: any = Dados.filter((f: any) => {
         if (session?.user.pemission !== 'Adm') {
-          return f.attributes.user.data?.attributes.username == null
+          return f.attributes.user.data?.attributes.username == null;
         } else {
-          return f.attributes.user.data?.attributes.username !== session?.user.name
+          return f.attributes.user.data?.attributes.username !== session?.user.name;
         }
-      })
-      const verifique = filtroSemVendedor.map((i: any) => {
+      });
+
+      const FiltroInteracaoVendedor = filtroSemVendedor.map((i: any) => {
         const interacoes = i.attributes.interacaos.data;
-        const filterInteracoes = interacoes.filter((i: any) => {
-          return i.attributes.vendedor_name === session?.user.name
-        })
-        return {
-          ...i, attributes: {
-            ...i.attributes,
-            interacaos: {
-              data: filterInteracoes
-            }
-          }
-        };
+        const filtro = interacoes.filter((interacao: any) => interacao.attributes.vendedor_name == session?.user.name);
+        if (filtro.length > 0) return i;
       })
-      const SemVendedorInteracao = verifique.filter((f: any) => f.attributes.interacaos.data?.length > 0);
+
+      const valida = FiltroInteracaoVendedor.filter((f: any) => f?.attributes?.interacaos.data?.length > 0);
 
 
-      const SemVendedorInteracaoMap = SemVendedorInteracao.map((i: any) => {
-        console.log("🚀 ~ file: index.tsx:93 ~ SemVendedorInteracaoMap ~ i:", i)
-        const interacao = i.attributes.interacaos.data;
-        const ultimaInteracao = interacao[interacao.length - 1];
+      const SemVendedorInteracaoMap = valida.map((i: any) => {
+        const interacoes = i.attributes.interacaos.data;
+        const ultimaInteracao = interacoes[interacoes.length - 1];
+
         const proximaData = startOfDay(parseISO(ultimaInteracao.attributes.proxima));
         const diferencaEmDias = calcularDiferencaEmDias(dataAtual, proximaData);
 
         let DifDias;
         let RetornoInteracao;
-        if (ultimaInteracao.attributes.status_atendimento === false && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
-          RetornoInteracao = { proxima: null, cor: 'gray', info: 'Você não tem interação agendada' }
-          DifDias = 500
-        } else if (diferencaEmDias === 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
+        if (ultimaInteracao.attributes.status_atendimento === false) {
+          RetornoInteracao = { proxima: null, cor: 'gray', info: 'Você não tem interação agendada' };
+          DifDias = 500;
+        } else if (diferencaEmDias === 0) {
           RetornoInteracao = { proxima: proximaData.toISOString(), cor: 'yellow', info: 'Você tem interação agendada para hoje' };
-          DifDias = diferencaEmDias
-        } else if (diferencaEmDias < 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
+          DifDias = diferencaEmDias;
+        } else if (diferencaEmDias < 0) {
           RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#FC0707', info: `Você tem interação que já passou, a data agendada era ${proximaData.toLocaleDateString()}` };
-          DifDias = diferencaEmDias
-        } else if (diferencaEmDias > 0 && ultimaInteracao.attributes.vendedor_name === session?.user.name) {
+          DifDias = diferencaEmDias;
+        } else {
           RetornoInteracao = { proxima: proximaData.toISOString(), cor: '#3B2DFF', info: `Você tem interação agendada para ${proximaData.toLocaleDateString()}` };
-          DifDias = diferencaEmDias
+          DifDias = diferencaEmDias;
         }
 
         return {
@@ -176,10 +166,11 @@ function Empresas({ dataRetorno }: any) {
                 proxima: RetornoInteracao?.proxima,
                 cor: RetornoInteracao?.cor,
                 info: RetornoInteracao?.info,
-              }
+                vendedor_name: ultimaInteracao.attributes.vendedor_name,
+              },
             },
-            diferencaEmDias: DifDias  // Adicione a diferença de dias como uma propriedade
-          }
+            diferencaEmDias: DifDias, // Adicione a diferença de dias como uma propriedade
+          },
         };
       });
 
@@ -187,62 +178,93 @@ function Empresas({ dataRetorno }: any) {
         return a.attributes.diferencaEmDias - b.attributes.diferencaEmDias;
       });
 
-      const SemVendedorInteracao0 = filtroSemVendedor.filter((f: any) => f.attributes.interacaos.data?.length == 0);
-      const DataVendedorSemVendedor: any = [...SemVendedorInteracaoMap, ...SemVendedorInteracao0];
+      const SemVendedorInteracao0 = filtroSemVendedor.filter((f: any) =>f.attributes.interacaos.data.length == 0);
 
-      setDataSearchOriginal(DataVendedorSemVendedor);
-      setDataSearchUserOriginal(DataVendedor);
-      setDataSearch(DataVendedorSemVendedor);
-      setDataSearchUser(DataVendedor);
-    })()
+      const FiltroInteracaoVendedor1 = filtroSemVendedor.map((i: any) => {
+        const interacoes = i.attributes.interacaos.data;
+        const filtro = interacoes.filter((interacao: any) => interacao.attributes.vendedor_name !== session?.user.name);
+        if (filtro.length > 0) return i;
+      })
+      const SemVendedorInteracao1 = FiltroInteracaoVendedor1.filter((f: any) =>f?.attributes.interacaos.data.length > 0);
+
+      const mergedArray = [...SemVendedorInteracao0, ...SemVendedorInteracao1];
+
+      mergedArray.sort((a, b) => {
+        const nomeA = a.attributes.nome.toLowerCase();
+        const nomeB = b.attributes.nome.toLowerCase();
+        if (nomeA < nomeB) return -1;
+        if (nomeA > nomeB) return 1;
+        return 0;
+      });
+
+  
+  const DataVendedorSemVendedor: any = [...SemVendedorInteracaoMap, ...mergedArray];
+
+  return DataVendedorSemVendedor;
+};
+
+(async () => {
+  const dataAtual = startOfDay(new Date());
+
+  const DataVendedor = processarVendedorInteracoes(dataAtual, Dados);
+  const DataVendedorSemVendedor = processarSemVendedorInteracoes(dataAtual, Dados);
+
+  console.log(DataVendedorSemVendedor.length)
+  console.log(DataVendedor.length)
+
+  setDataSearchOriginal(DataVendedorSemVendedor);
+  setDataSearchUserOriginal(DataVendedor);
+  setDataSearch(DataVendedorSemVendedor);
+  setDataSearchUser(DataVendedor);
+})();
 
   }, [Dados, session?.user.name, session?.user.pemission])
 
-  function filterEmpresa(SearchEmpr: React.SetStateAction<any>): any {
-    const filtro = SearchEmpr.toLowerCase();
+function filterEmpresa(SearchEmpr: React.SetStateAction<any>): any {
+  const filtro = SearchEmpr.toLowerCase();
 
-    const PesqisaArrayVendedor = DataSearchUserOriginal.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
-    const PesqisaArraySemVendedor = DataSearchOriginal.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
+  const PesqisaArrayVendedor = DataSearchUserOriginal.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
+  const PesqisaArraySemVendedor = DataSearchOriginal.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
 
 
-    const PesqisaArrayTotal = DataTotal.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
+  const PesqisaArrayTotal = DataTotal.filter((item: any) => item.attributes.nome.toLowerCase().includes(filtro));
 
-    const PesquisaTotal = PesqisaArrayTotal.filter((f: any) => f.attributes.user.data?.attributes.username !== session?.user.name && f.attributes.user.data !== null);
+  const PesquisaTotal = PesqisaArrayTotal.filter((f: any) => f.attributes.user.data?.attributes.username !== session?.user.name && f.attributes.user.data !== null);
 
-    if (PesquisaTotal.length > 0) {
-      PesquisaTotal.map((i: any) => {
-        const vendedor = i.attributes.user.data?.attributes.username
-        toast({
-          title: 'Opss',
-          description: `O cliente ${i.attributes.nome}, perece a o Vendedor(a) ${vendedor}`,
-          status: 'warning',
-          duration: 9000,
-          isClosable: true,
-          position: 'top-right',
-        })
+  if (PesquisaTotal.length > 0) {
+    PesquisaTotal.map((i: any) => {
+      const vendedor = i.attributes.user.data?.attributes.username
+      toast({
+        title: 'Opss',
+        description: `O cliente ${i.attributes.nome}, perece a o Vendedor(a) ${vendedor}`,
+        status: 'warning',
+        duration: 9000,
+        isClosable: true,
+        position: 'top-right',
       })
-    }
-    setDataSearchUser(PesqisaArrayVendedor);
-    setDataSearch(PesqisaArraySemVendedor);
-  };
+    })
+  }
+  setDataSearchUser(PesqisaArrayVendedor);
+  setDataSearch(PesqisaArraySemVendedor);
+};
 
-  return (
-    <>
-      <Box w={'100%'} h={'100%'} bg={'gray.800'} color={'white'} px={5} py={2} fontSize={'0.8rem'}>
-        <Heading size={'lg'}>Empresas</Heading>
-        <Flex w={'100%'} py={'1rem'} justifyContent={'space-between'} flexDir={'row'} alignItems={'self-end'} px={6} gap={6} borderBottom={'1px'} borderColor={'white'} mb={'1rem'}>
-          <Box>
-            <FiltroEmpresa empresa={filterEmpresa} />
-          </Box>
-          <Button size={'sm'} onClick={() => router.push('/empresas/cadastro')} colorScheme="green">+ Nova Empresa</Button>
-        </Flex>
-        <Box display={'flex'} flexDirection={{ base: 'column', lg: 'row' }} w={'100%'} h={'76%'} pt={5} gap={5} >
-          <CarteiraVendedor filtro={DataSearchUser} />
-          <CarteiraAusente filtro={DataSearch} />
+return (
+  <>
+    <Box w={'100%'} h={'100%'} bg={'gray.800'} color={'white'} px={5} py={2} fontSize={'0.8rem'}>
+      <Heading size={'lg'}>Empresas</Heading>
+      <Flex w={'100%'} py={'1rem'} justifyContent={'space-between'} flexDir={'row'} alignItems={'self-end'} px={6} gap={6} borderBottom={'1px'} borderColor={'white'} mb={'1rem'}>
+        <Box>
+          <FiltroEmpresa empresa={filterEmpresa} />
         </Box>
+        <Button size={'sm'} onClick={() => router.push('/empresas/cadastro')} colorScheme="green">+ Nova Empresa</Button>
+      </Flex>
+      <Box display={'flex'} flexDirection={{ base: 'column', lg: 'row' }} w={'100%'} h={'76%'} pt={5} gap={5} >
+        <CarteiraVendedor filtro={DataSearchUser} />
+          <CarteiraAusente filtro={DataSearch} />
       </Box>
-    </>
-  );
+    </Box>
+  </>
+);
 }
 
 export default Empresas;

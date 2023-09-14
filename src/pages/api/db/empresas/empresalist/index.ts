@@ -15,7 +15,7 @@ export default async function GetEmpresaAllMin(
 ): Promise<void> {
   if (req.method === "GET") {
     try {
-      const url = `${process.env.NEXT_PUBLIC_STRAPI_API_URL}/empresas?filters[status][$eq]=true&sort[0]=nome%3Aasc&fields[0]=nome&populate[user][fields][0]=username&populate[businesses]=*&populate[interacaos][fields][0]=proxima&populate[interacaos][fields][1]=vendedor_name&populate[interacaos][fields][2]=status_atendimento&pagination[limit]=8000`;
+      const url = `${process.env.NEXT_PUBLIC_STRAPI_API_URL}/empresas?sort[0]=nome%3Aasc&fields[0]=nome&populate[user][fields][0]=username&populate[businesses]=*&populate[interacaos][fields][0]=proxima&populate[interacaos][fields][1]=vendedor_name&populate[interacaos][fields][2]=status_atendimento&pagination[limit]=8000`;
 
       const response = await GET_Strapi(url);
       res.status(200).json(response.data);

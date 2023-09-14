@@ -231,128 +231,138 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
 
 
   const save = async () => {
-    setBlock(true)
-    setload(true)
-    const date = new Date();
-    const dateIsso = date.toISOString();
-    const historico = ENVIO === 'POST' ? [
-      {
-        date: dateIsso,
-        vendedor: session?.user.name,
-        msg: `Empresa ${nome} foi cadastrado`,
-      },
-    ] : [
-      {
-        date: dateIsso,
-        vendedor: session?.user.name,
-        msg: `Empresa ${nome} foi atualizado`,
-      },
-    ];
-
-    const dataUpdate = {
-      data: {
-        nome: nome,
-        fantasia: fantasia,
-        tipoPessoa: tipoPessoa,
-        endereco: endereco,
-        numero: numero,
-        complemento: complemento,
-        bairro: bairro,
-        cep: cep,
-        cidade: cidade,
-        uf: uf,
-        fone: fone,
-        celular: celular,
-        email: email,
-        emailNfe: emailNfe,
-        site: site,
-        CNPJ: CNPJ,
-        Ie: Ie,
-        pais: pais,
-        codpais: codpais,
-        CNAE: CNAE,
-        porte: porte,
-        simples: simples,
-        ieStatus: ieStatus,
-        status: status,
-        adFrailLat: adFrailLat,
-        adFrailCab: adFrailCab,
-        adEspecialLat: adEspecialLat,
-        adEspecialCab: adEspecialCab,
-        latFCab: latFCab,
-        cabChao: cabChao,
-        cabTop: cabTop,
-        cxEco: cxEco,
-        cxEst: cxEst,
-        cxLev: cxLev,
-        cxRef: cxRef,
-        cxSupRef: cxSupRef,
-        platSMed: platSMed,
-        cxResi: cxResi,
-        engEco: engEco,
-        engLev: engLev,
-        engRef: engRef,
-        engResi: engResi,
-        modEsp: modEsp,
-        tablecalc: tablecalc,
-        maxPg: ENVIO === 'POST' ? '0' : maxPg,
-        forpg: ENVIO === 'POST' ? 'Antecipado' : forpg,
-        frete: frete,
-        contribuinte: contribuinte,
-        representantes: Responsavel,
-        inativOk: Inatividade,
-        razao: Razao,
-        history: History.length === 0 ? historico : [...History, ...historico]
-      },
-    };
-
-    if (ENVIO === 'POST') {
-      const url = `/api/db/empresas/post?Email=${session?.user.email}&Vendedor=${session?.user.name}`;
-      await axios({
-        method: 'POST',
-        url: url,
-        data: dataUpdate,
+    if (nome === "") {
+      toast({
+        title: 'Opss.',
+        description: "Nome da empresa não pode estar vazio",
+        status: 'warning',
+        duration: 9000,
+        isClosable: true,
       })
-        .then((response) => {
-          console.log(response)
-          toast({
-            title: "Cliente criado com sucesso",
-            status: "success",
-            duration: 3000,
-            isClosable: true,
-          });
-          router.push('/empresas');
-        })
-        .catch((err) => {
-          console.error(err)
-          setBlock(false)
-          setload(false)
-        });
     } else {
-      const EMPRESAID = router.query.id;
-      const url = `/api/db/empresas/atualizacao/${EMPRESAID}?Email=${session?.user.email}&Vendedor=${session?.user.name}`;
-      await axios({
-        method: 'PUT',
-        url: url,
-        data: dataUpdate,
-      })
-        .then((response) => {
-          toast({
-            title: 'Cliente atualizado',
-            status: 'success',
-            duration: 2000,
-            isClosable: true,
-          });
-          router.push('/empresas');
-          return response.data;
+      setBlock(true)
+      setload(true)
+      const date = new Date();
+      const dateIsso = date.toISOString();
+      const historico = ENVIO === 'POST' ? [
+        {
+          date: dateIsso,
+          vendedor: session?.user.name,
+          msg: `Empresa ${nome} foi cadastrado`,
+        },
+      ] : [
+        {
+          date: dateIsso,
+          vendedor: session?.user.name,
+          msg: `Empresa ${nome} foi atualizado`,
+        },
+      ];
+
+      const dataUpdate = {
+        data: {
+          nome: nome,
+          fantasia: fantasia,
+          tipoPessoa: tipoPessoa,
+          endereco: endereco,
+          numero: numero,
+          complemento: complemento,
+          bairro: bairro,
+          cep: cep,
+          cidade: cidade,
+          uf: uf,
+          fone: fone,
+          celular: celular,
+          email: email,
+          emailNfe: emailNfe,
+          site: site,
+          CNPJ: CNPJ,
+          Ie: Ie,
+          pais: pais,
+          codpais: codpais,
+          CNAE: CNAE,
+          porte: porte,
+          simples: simples,
+          ieStatus: ieStatus,
+          status: status,
+          adFrailLat: adFrailLat,
+          adFrailCab: adFrailCab,
+          adEspecialLat: adEspecialLat,
+          adEspecialCab: adEspecialCab,
+          latFCab: latFCab,
+          cabChao: cabChao,
+          cabTop: cabTop,
+          cxEco: cxEco,
+          cxEst: cxEst,
+          cxLev: cxLev,
+          cxRef: cxRef,
+          cxSupRef: cxSupRef,
+          platSMed: platSMed,
+          cxResi: cxResi,
+          engEco: engEco,
+          engLev: engLev,
+          engRef: engRef,
+          engResi: engResi,
+          modEsp: modEsp,
+          tablecalc: tablecalc,
+          maxPg: ENVIO === 'POST' ? '0' : maxPg,
+          forpg: ENVIO === 'POST' ? 'Antecipado' : forpg,
+          frete: frete,
+          contribuinte: contribuinte,
+          representantes: Responsavel,
+          inativOk: Inatividade,
+          razao: Razao,
+          history: History.length === 0 ? historico : [...History, ...historico]
+        },
+      };
+
+      if (ENVIO === 'POST') {
+        const url = `/api/db/empresas/post?Email=${session?.user.email}&Vendedor=${session?.user.name}`;
+        await axios({
+          method: 'POST',
+          url: url,
+          data: dataUpdate,
         })
-        .catch((err) => {
-          console.error(err)
-          setBlock(false)
-          setload(false)
-        });
-    }
-  };
+          .then((response) => {
+            console.log(response)
+            toast({
+              title: "Cliente criado com sucesso",
+              status: "success",
+              duration: 3000,
+              isClosable: true,
+            });
+            router.push('/empresas');
+          })
+          .catch((err) => {
+            console.error(err)
+            setBlock(false)
+            setload(false)
+          });
+      } else {
+        const EMPRESAID = router.query.id;
+        const url = `/api/db/empresas/atualizacao/${EMPRESAID}?Email=${session?.user.email}&Vendedor=${session?.user.name}`;
+        await axios({
+          method: 'PUT',
+          url: url,
+          data: dataUpdate,
+        })
+          .then((response) => {
+            toast({
+              title: 'Cliente atualizado',
+              status: 'success',
+              duration: 2000,
+              isClosable: true,
+            });
+            router.push('/empresas');
+            return response.data;
+          })
+          .catch((err) => {
+            console.error(err)
+            setBlock(false)
+            setload(false)
+          });
+      }
+    };
+  }
 
   const resetData = (data: any) => {
     console.log("🚀 ~ file: index.tsx:358 ~ resetData ~ data:", data)
@@ -447,7 +457,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
   console.log(session?.user.pemission !== 'Adm' && ENVIO === 'PUT' ? true : false)
   console.log(ENVIO === 'PUT')
   console.log(ENVIO)
-  console.log(session?.user.pemission !== 'Adm' )
+  console.log(session?.user.pemission !== 'Adm')
 
   return (
     <>
@@ -536,7 +546,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                       h={8}
                       mt={5}
                       colorScheme="messenger"
-                      isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'UPDATE'? true: false}
+                      isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'UPDATE' ? true : false}
                       onClick={consulta}
                     >
                       Buscar dados
@@ -547,7 +557,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                         borderColor="gray.900"
                         rounded="md"
                         isChecked={status}
-                        isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'UPDATE'? true: false}
+                        isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'UPDATE' ? true : false}
                         onChange={(e) => setStatus(e.target.checked)}
                       />
                     </Box>
@@ -577,7 +587,7 @@ export const FormEmpresa = (props: { data?: any, envio: string }) => {
                             rounded="md"
                             onChange={(e) => setNome(capitalizeWords(e.target.value))}
                             value={nome}
-                            isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'UPDATE'? true: false}
+                            isDisabled={session?.user.pemission !== 'Adm' && ENVIO === 'UPDATE' ? true : false}
                           />
                         </FormControl>
                         <FormControl as={GridItem} colSpan={[5, 2]}>

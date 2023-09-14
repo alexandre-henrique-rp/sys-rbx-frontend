@@ -433,7 +433,7 @@ export default function Infos() {
                           <td style={{ textAlign: 'center', color: color }}>{index + 1}</td>
                           <td style={{ textAlign: 'center', color: color }}>{andamento}</td>
                           <td style={{ textAlign: 'center', color: color }}>{Status}</td>
-                          <td style={{ textAlign: 'center', color: color }}>{valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                          <td style={{ textAlign: 'center', color: color }}>{!! valor && valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
                         </tr>
                       </>
                     )
