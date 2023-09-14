@@ -197,7 +197,7 @@ function Empresas({ dataRetorno }: any) {
         return 0;
       });
 
-  
+
   const DataVendedorSemVendedor: any = [...SemVendedorInteracaoMap, ...mergedArray];
 
   return DataVendedorSemVendedor;
@@ -231,7 +231,7 @@ function filterEmpresa(SearchEmpr: React.SetStateAction<any>): any {
 
   const PesquisaTotal = PesqisaArrayTotal.filter((f: any) => f.attributes.user.data?.attributes.username !== session?.user.name && f.attributes.user.data !== null);
 
-  if (PesquisaTotal.length > 0) {
+  if (PesquisaTotal.length > 0 && filtro !== "") {
     PesquisaTotal.map((i: any) => {
       const vendedor = i.attributes.user.data?.attributes.username
       toast({
