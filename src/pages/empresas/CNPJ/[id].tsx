@@ -404,7 +404,7 @@ export default function Infos() {
 
             {/* últimos negocios */}
             <Box w={'100%'} bg={'#2d3748'} rounded={16} p={5}>
-              <Box><Heading size={'md'} mb={3}>Últimas Negocios</Heading></Box>
+              <Box><Heading size={'md'} mb={3}>Últimos Negocios</Heading></Box>
               <table style={{ width: '100%' }}>
                 <thead>
                   <tr>

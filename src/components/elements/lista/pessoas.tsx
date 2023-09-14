@@ -1,9 +1,10 @@
 import { capitalizeWords } from '@/function/captalize';
-import { Box, Button, Flex, FormControl, FormLabel, GridItem, Heading, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, SimpleGrid, Textarea, useDisclosure } from '@chakra-ui/react';
+import { Box, Button, Flex, FormControl, FormLabel, GridItem, Heading, Input, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Select, SimpleGrid, Textarea, useDisclosure, useToast } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { PessoasData } from './pessoasdata';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
+
 
 interface pessoalResp {
   id: number;
@@ -32,6 +33,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
   const [UPdate, setUPdate] = useState(false);
   const { data: session } = useSession();
   const [Bloq, setBloq] = useState(false);
+  const toast = useToast()
 
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -148,37 +150,39 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
       try {
         const excluir = await axios.put(`/api/db/representantes/delet/${idPessoa}?USER=${session?.user.name}&cnpj=${props.cnpj}`);
         const darespostados = excluir.data;
+        console.log(darespostados)
+
+        toast({
+          title: 'Pessoa removida com sucesso',
+          status: 'success',
+          duration: 9000,
+          isClosable: true,
+          position: 'top-right',
+        })
 
         if (session?.user.pemission === 'Adm') {
-          (async () => {
-            try {
-              const request = await axios(`/api/db/representantes/get?Vendedor=${session?.user.name}&Empresa=${props.Resp}&Adm=true`);
-              const dados = request.data;
+          const request = await axios(`/api/db/representantes/get?Vendedor=${session?.user.name}&Empresa=${props.Resp}&Adm=true`);
+          const dados = request.data;
+          console.log("🚀 ~ file: pessoas.tsx:166 ~ dados:", dados)
+          setDados(dados)
 
-              setDados(dados)
-              onClose()
-              reset()
-              setBloq(false)
-            } catch (error) {
-              console.error("Erro ao buscar dados:", error);
-              setBloq(false)
-            }
-          })()
+          console.log('adm')
+          onClose()
+          reset()
+          setBloq(false)
+
+
         } else {
-          (async () => {
-            try {
-              const request = await axios(`/api/db/representantes/get?Vendedor=${session?.user.name}&Empresa=${props.Resp}&Adm=false`);
-              const dados = request.data;
+          console.log('user')
 
-              setDados(dados)
-              onClose()
-              reset()
-              setBloq(false)
-            } catch (error) {
-              console.error("Erro ao buscar dados:", error);
-              setBloq(false)
-            }
-          })()
+          const request = await axios(`/api/db/representantes/get?Vendedor=${session?.user.name}&Empresa=${props.Resp}&Adm=false`);
+          const dados = request.data;
+
+          setDados(dados)
+          onClose()
+          reset()
+          setBloq(false)
+
         }
       } catch (error) {
         console.error("Erro ao buscar dados:", error);
@@ -260,6 +264,38 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
 
   }
 
+  async function handlereload() {
+    if (session?.user.pemission === 'Adm') {
+      (async () => {
+        try {
+          const request = await axios(`/api/db/representantes/get?Vendedor=${session?.user.name}&Empresa=${props.Resp}&Adm=true`);
+          const dados = request.data;
+
+          setDados(dados)
+          onClose()
+          reset()
+          setBloq(false)
+        } catch (error) {
+          console.error("Erro ao buscar dados:", error);
+          setBloq(false)
+        }
+      })()
+    } else {
+      try {
+        const request = await axios(`/api/db/representantes/get?Vendedor=${session?.user.name}&Empresa=${props.Resp}&Adm=false`);
+        const dados = request.data;
+
+        setDados(dados)
+        onClose()
+        reset()
+        setBloq(false)
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error);
+        setBloq(false)
+      }
+    }
+  }
+
 
   return (
     <Box>
@@ -273,7 +309,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
           + Nova Pessoa
         </Button>
 
-        {dados.map((i: any) => <PessoasData key={i.id} data={i} respData={Remover} respAtualizar={Atualizar} />)}
+        {dados.map((i: any) => <PessoasData key={i.id} data={i} respData={Remover} respAtualizar={Atualizar} reload={handlereload} />)}
 
       </Flex>
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -444,7 +480,7 @@ export const CompPessoa = (props: { Resp: any; onAddResp: any; cnpj: any }) => {
                     })}
 
                   </Select>
-                  <pre>{VendedorId}</pre>
+
                 </FormControl>
                 }
 
