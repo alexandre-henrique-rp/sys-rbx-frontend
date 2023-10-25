@@ -25,7 +25,7 @@ export const Historico = async (txt: any, url: string) => {
   await axiosRequet
     .put(url, data)
     .then((response) => {
-      const resp = `Aleteração do cliente id: ${response.data.data.id}, nome: ${response.data.data.attributes.nome}, foi registrada!`;
+      const resp = `Alteração do cliente id: ${response.data.data.id}, nome: ${response.data.data.attributes.nome}, foi registrada!`;
       return resp;
     })
     .catch((error) => {

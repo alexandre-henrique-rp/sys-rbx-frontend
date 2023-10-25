@@ -6,7 +6,6 @@ import { useState, useEffect, useRef } from "react";
 
 export const FormaPg = (props: { id: any; retorno: any; envio: any }) => {
   const [maxPg, setMaxpg] = useState("Antecipado");
-  console.log("🚀 ~ file: FomaPg.tsx:9 ~ FormaPg ~ maxPg:", maxPg)
   const [Titulo, setTitulo] = useState("");
   const [Valor, setValor] = useState("");
   const [Id, setId] = useState("");

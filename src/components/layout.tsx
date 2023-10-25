@@ -96,7 +96,7 @@ function Layout({ children }: { children: React.ReactNode }): JSX.Element {
       w={'100vw'}
       flexDir={['column', 'column', 'row']}
       overflow="hidden"
-      maxW="2000px"
+      // maxW="2000px"
       fontSize={'1rem'}
     >
       <Flex
@@ -113,10 +113,9 @@ function Layout({ children }: { children: React.ReactNode }): JSX.Element {
 
       <Flex
         flexDir="column"
-        minH="100vh"
+        h="100vh"
         overflow="auto"
-        w={{ sm: '100%', md: '100%' }}
-        h={'100%'}
+        w={'100%'}
       >
         {children}
       </Flex>

@@ -47,7 +47,8 @@ export const PrazoPg = (props: { id: any; retorno: any; envio: any }) => {
       url: `/api/db/empresas/setMaxPrazoPg`,
       data: Dados
     })
-      .then(async () => {
+      .then(async (response) => {
+        console.log(response.data)
         try {
           const resposta = await axios({
             method: "GET",
@@ -150,7 +151,7 @@ export const PrazoPg = (props: { id: any; retorno: any; envio: any }) => {
                   onChange={(e) => {
                     const valor = e.target.value;
                     const numeros = valor.replace(/\D/g, '');
-                    setValor(numeros)
+                    setValor(valor)
                   }}
                   value={Valor}
                 />

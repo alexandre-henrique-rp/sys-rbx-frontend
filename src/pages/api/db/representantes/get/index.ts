@@ -10,7 +10,7 @@ export default async function GetEmpresa(
   if (req.method === "GET" ) {
     const Vendedor = req.query.Vendedor;
     const Empresa = req.query.Empresa;
-  
+
 
     if (req.query.Adm == "true") {
 

@@ -1,13 +1,8 @@
-import { Box, useToast } from "@chakra-ui/react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
+import { Box } from "@chakra-ui/react";
 import React from "react";
 import { FormEmpresa } from "@/components/empresa/component/form";
 
 export default function Cadastro() {
-  const { data: session } = useSession();
-  const router = useRouter();
-  const toast = useToast()
 
 
   return (

@@ -23,7 +23,7 @@ export const IncidentRecord = async (txt: any, business: string) => {
   await axiosRequet
     .put(url, data)
     .then((response) => {
-      const resp = `acresentado mais 1 registro`;
+      const resp = `acrescentado mais 1 registro`;
       return resp;
     })
     .catch((error) => {
