@@ -1,18 +1,24 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import GetPedido from './requestPedido';
+import axios from 'axios';
 
 export default async function Get(req: NextApiRequest, res: NextApiResponse) {
+  const token = process.env.ATORIZZATION_TOKEN_BLING;
   if (req.method === 'GET') {
-    try {
-      const {pedido}: any = req.query;
-
-      const PropostaVenda = await GetPedido(pedido)
-      const PedidoBling = 
-
-    } catch (error) {
-
-    }
-
+    const url = 'https://bling.com.br/Api/v2/contatos/json';
+    await axios({
+      method: 'GET',
+      url: url,
+      params: {
+        apikey: token,
+      },
+    })
+      .then((response) => {
+        console.log(response);
+        res.status(200).json(response.data.retorno.contatos);
+      })
+      .catch((err) => {
+        res.status(400).json(err);
+      });
   } else {
     return res.status(405).send({ message: 'Only GET requests are allowed' });
   }
