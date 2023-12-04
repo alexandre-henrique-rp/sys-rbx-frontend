@@ -46,15 +46,16 @@ export default async function GetEmpresa(
       const data = conclucaoResponse.data.data;
 
       const em_aberto_reduce = em_aberto_bruto.reduce((cc: number, d: any) =>{
-        const budget = parseFloat(d.attributes.Budget.replace(/[^0-9,]/g, '').replace('.', '').replace(',', '.'));
+        const budget = !d.attributes.Budget ? 0 : parseFloat(d.attributes.Budget.replace(/[^0-9,]/g, '').replace('.', '').replace(',', '.'));
         const soma = cc + (isNaN(budget) ? 0 : budget);
         const valor = Math.round(parseFloat(soma.toFixed(2)) * 100) / 100;
         return valor
       }, 0);
       const em_aberto = em_aberto_reduce.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      console.log("🚀 ~ file: index.ts:55 ~ em_aberto:", em_aberto)
 
       const conclusao_reduce = conclusao_bruto.reduce((cc: number, d: any) =>{
-        const budget = parseFloat(d.attributes.Budget.replace(/[^0-9,]/g, '').replace('.', '').replace(',', '.'));
+        const budget = !d.attributes.Budget ? 0 : parseFloat(d.attributes.Budget.replace(/[^0-9,]/g, '').replace('.', '').replace(',', '.'));
         const soma = cc + (isNaN(budget) ? 0 : budget);
         const valor = Math.round(parseFloat(soma.toFixed(2)) * 100) / 100;
         return valor
@@ -62,7 +63,7 @@ export default async function GetEmpresa(
       const conclusao = conclusao_reduce.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
       const perdido_reduce = perdido_bruto.reduce((cc: number, d: any) =>{
-        const budget = parseFloat(d.attributes.Budget.replace(/[^0-9,]/g, '').replace('.', '').replace(',', '.'));
+        const budget = !d.attributes.Budget ? 0 : parseFloat(d.attributes.Budget.replace(/[^0-9,]/g, '').replace('.', '').replace(',', '.'));
         const soma = cc + (isNaN(budget) ? 0 : budget);
         const valor = Math.round(parseFloat(soma.toFixed(2)) * 100) / 100;
         return valor
@@ -75,9 +76,11 @@ export default async function GetEmpresa(
         conclusao,
         data
       }
+      console.log("🚀 ~ file: index.ts:78 ~ DataRetono:", DataRetono)
 
       res.status(200).json(DataRetono);
     } catch (error: any) {
+      console.log(error);
       res
         .status(error.response?.status || 500)
         .json(error.response?.data || { message: "Internal Server Error" });
