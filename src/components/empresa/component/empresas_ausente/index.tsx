@@ -36,7 +36,7 @@ export const CarteiraAusente = (props: { filtro: any }) => {
   }, [props.filtro])
 
   const filter = (empresa: string) => {
-    const [interacaolist] = !Interacao ? [] : Interacao.filter((f: any) => f.attributes.vendedor.data.attributes.username === session?.user.name && f.attributes.empresa.data.attributes.nome === empresa)
+    const [interacaolist] = !Interacao ? [] : Interacao.filter((f: any) => f.attributes.vendedor.data?.attributes.username === session?.user.name && f.attributes.empresa.data?.attributes.nome === empresa)
     return interacaolist
   }
 
@@ -60,8 +60,6 @@ export const CarteiraAusente = (props: { filtro: any }) => {
     let interacao
 
     const interacaolist = filter(empresa)
-    
-    // console.log("🚀 ~ file: index.tsx:59 ~ BodyTabela ~ interacaolist:", interacaolist)
 
     const dataAtual = startOfDay(new Date())
     // console.log("🚀 ~ file: index.tsx:66 ~ BodyTabela ~ dataAtual:", dataAtual)

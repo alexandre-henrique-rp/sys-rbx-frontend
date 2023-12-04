@@ -10,7 +10,7 @@ import { FaMoneyBillAlt } from "react-icons/fa";
 
 export const CarteiraVendedor = (props: {filtro: any }) => {
   const [Data, setData] = useState<any | null>(null);
-  const [Interacao, setInteracao] = useState<any | null>(null);
+  const [Interacao, setInteracao] = useState<any>([]);
   const { data: session } = useSession()
   const router = useRouter()
 
@@ -34,10 +34,10 @@ export const CarteiraVendedor = (props: {filtro: any }) => {
     }
   }, [props.filtro, session?.user.name])
 
+console.log(Interacao)
 
-
-  const filter = (empresa: string) => {
-    const interacaolist = !Interacao ? [] : Interacao.filter((f: any) => f.attributes.vendedor.data.attributes.username === session?.user.name && f.attributes.empresa.data.attributes.nome === empresa)
+  const Filtro = (empresa: string) => {
+    const interacaolist = !!Interacao && Interacao.filter((f: any) => f.attributes.vendedor.data?.attributes.username === session?.user.name && f.attributes.empresa.data?.attributes.nome === empresa)
     return interacaolist
   }
 
@@ -54,7 +54,7 @@ export const CarteiraVendedor = (props: {filtro: any }) => {
       }
     });
 
-    const interacaolist = filter(empresa)
+    const interacaolist = Filtro(empresa)
     const interacao = encontrarObjetoMaisProximoComCor(interacaolist)
 
     return (
