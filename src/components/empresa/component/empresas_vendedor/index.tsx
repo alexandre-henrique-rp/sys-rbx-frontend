@@ -34,7 +34,6 @@ export const CarteiraVendedor = (props: {filtro: any }) => {
     }
   }, [props.filtro, session?.user.name])
 
-console.log(Interacao)
 
   const Filtro = (empresa: string) => {
     const interacaolist = !!Interacao && Interacao.filter((f: any) => f.attributes.vendedor.data?.attributes.username === session?.user.name && f.attributes.empresa.data?.attributes.nome === empresa)
